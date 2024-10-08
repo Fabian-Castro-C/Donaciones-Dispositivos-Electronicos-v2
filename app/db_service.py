@@ -5,6 +5,7 @@ def obtener_conexion():
     """Crea y devuelve una conexión a la base de datos."""
     return pymysql.connect(
         host=Config.MYSQL_HOST,
+        port=Config.MYSQL_PORT,
         user=Config.MYSQL_USER,
         password=Config.MYSQL_PASSWORD,
         database=Config.MYSQL_DB,
