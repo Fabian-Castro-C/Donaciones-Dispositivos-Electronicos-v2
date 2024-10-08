@@ -9,48 +9,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const cancelButton = document.getElementById('cancelButton');
   let deviceEntryCounter = 1;
 
-  // Cargar regiones
-  async function loadRegions() {
-    try {
-      const response = await fetch('../data/region_comuna.json');
-      const data = await response.json();
-      data.regiones.forEach(region => {
-        const option = document.createElement('option');
-        option.value = region.id;
-        option.textContent = region.nombre;
-        regionSelect.appendChild(option);
-      });
-      regionSelect.addEventListener('change', (event) => {
-        const selectedRegionId = parseInt(event.target.value);
-        updateComunas(selectedRegionId);
-      });
-    } catch (error) {
-      showGlobalMessage('No se pudieron cargar las regiones. Inténtelo de nuevo más tarde.', 'error');
-    }
-  }
-
   // Actualizar comunas según la región
-  function updateComunas(regionId) {
-    comunaSelect.innerHTML = '<option value="">Seleccione su comuna</option>';
+  regionSelect.addEventListener('change', (event) => {
+    const regionId = event.target.value;
+
     if (regionId) {
-      fetch('../data/region_comuna.json')
+      comunaSelect.disabled = false;
+      fetch(`/get_comunas/${regionId}`)
         .then(response => response.json())
         .then(data => {
-          const region = data.regiones.find(r => r.id === regionId);
-          if (region) {
-            region.comunas.forEach(comuna => {
+          if (data.comunas) {
+            comunaSelect.innerHTML = '<option value="">Seleccione su comuna</option>';
+            data.comunas.forEach(comuna => {
               const option = document.createElement('option');
               option.value = comuna.id;
               option.textContent = comuna.nombre;
               comunaSelect.appendChild(option);
             });
+          } else {
+            comunaSelect.innerHTML = '<option value="">No se encontraron comunas</option>';
           }
         })
         .catch(error => {
-          showGlobalMessage('No se pudieron cargar las comunas. Inténtelo de nuevo más tarde.', 'error');
+          console.error('Error al cargar comunas:', error);
+          comunaSelect.innerHTML = '<option value="">Error al cargar comunas</option>';
         });
+    } else {
+      comunaSelect.disabled = true;
+      comunaSelect.innerHTML = '<option value="">Seleccione su comuna</option>';
     }
-  }
+  });
 
   function addDeviceEntry() {
     const originalDeviceEntry = document.getElementById('device-entry');

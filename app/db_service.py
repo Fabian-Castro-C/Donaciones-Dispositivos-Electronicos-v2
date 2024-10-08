@@ -16,7 +16,7 @@ def obtener_regiones():
     conexion = obtener_conexion()
     try:
         with conexion.cursor() as cursor:
-            sql = "SELECT id, nombre FROM region"
+            sql = "SELECT id, nombre FROM region ORDER BY id ASC"
             cursor.execute(sql)
             regiones = cursor.fetchall()
         return regiones
