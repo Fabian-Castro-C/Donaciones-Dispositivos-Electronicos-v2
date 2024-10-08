@@ -1,0 +1,7 @@
+# Entornos virtuales
+venv/
+__pycache__/
+*.pyc
+
+# Archivos de configuración de bases de datos
+*.sql
