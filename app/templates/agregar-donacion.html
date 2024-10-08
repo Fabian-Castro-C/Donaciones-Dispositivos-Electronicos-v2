@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Agregar Donación</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <!-- Cargar el CSS de forma dinámica con Flask -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/agregar-donacion.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Agregar Donación</h1>
+    <nav>
+      <a href="{{ url_for('index') }}">Volver a la página principal</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="form-container">
+      <form id="donationForm" method="POST" enctype="multipart/form-data" novalidate>
+        <fieldset>
+          <legend>Información de contacto</legend>
+
+          <label for="nombre">Nombre Donante:</label>
+          <input type="text" id="nombre" name="nombre" maxlength="80" required>
+
+          <label for="email">Email Donante:</label>
+          <input type="email" id="email" name="email" maxlength="30" required>
+
+          <label for="telefono">Número de Celular Donante:</label>
+          <input type="tel" id="telefono" name="telefono" maxlength="15" required>
+
+          <label for="region">Región:</label>
+          <select name="region" id="region" required>
+            <option value="">Seleccione su región</option>
+            {% for region in regiones %}
+                <option value="{{ region.id }}">{{ region.nombre }}</option>
+            {% endfor %}
+          </select>
+
+          <label for="comuna">Comuna:</label>
+          <select name="comuna" id="comuna" required>
+            <option value="">Seleccione su comuna</option>
+          </select>
+        </fieldset>
+
+        <fieldset id="deviceContainer">
+          <legend>Información del Dispositivo</legend>
+
+          <div id="device-entry" class="device-entry">
+            <label for="nombreDispositivo">Nombre del Dispositivo:</label>
+            <input type="text" name="nombreDispositivo" id="nombreDispositivo" maxlength="80" required>
+
+            <label for="descripcion">Descripción:</label>
+            <textarea name="descripcion" id="descripcion" rows="4" cols="50"></textarea>
+
+            <label for="tipo">Tipo de Dispositivo:</label>
+            <select name="tipo" id="tipo" required>
+              <option value="">Seleccione un tipo</option>
+              <option value="Pantalla">Pantalla</option>
+              <option value="Notebook">Notebook</option>
+              <option value="Tablet">Tablet</option>
+              <option value="Celular">Celular</option>
+              <option value="Consola">Consola</option>
+              <option value="Mouse">Mouse</option>
+              <option value="Teclado">Teclado</option>
+              <option value="Impresora">Impresora</option>
+              <option value="Parlante">Parlante</option>
+              <option value="Audifonos">Audifonos</option>
+              <option value="Otro">Otro</option>
+            </select>
+
+            <label for="aniosUso">Años de Uso:</label>
+            <input type="number" name="aniosUso" id="aniosUso" min="1" max="99" required>
+
+            <label for="estado">Estado de Funcionamiento:</label>
+            <select name="estado" id="estado" required>
+              <option value="">Seleccione un estado</option>
+              <option value="Funciona perfecto">Funciona perfecto</option>
+              <option value="Funciona a medias">Funciona a medias</option>
+              <option value="No funciona">No funciona</option>
+            </select>
+
+            <label for="fotos">Fotos del Producto:</label>
+            <input type="file" name="fotos" id="fotos" accept="image/*" multiple required>
+          </div>
+        </fieldset>
+
+        <button type="button" id="addDevice">Agregar otro dispositivo a esta donación</button>
+        <button type="submit" id="submitPublicacion">Publicar esta donación</button>
+        <div id="formMessages" class="form-messages"></div> <!-- Área para mensajes -->
+
+        <!-- Sección de confirmación -->
+        <div id="confirmationSection" class="confirmation-section">
+          <p>¿Estás seguro de que deseas confirmar esta donación?</p>
+          <button type="button" id="confirmButton">Confirmar</button>
+          <button type="button" id="cancelButton">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Donaciones de dispositivos electrónicos</p>
+  </footer>
+
+  <!-- Cargar el JavaScript de forma dinámica con Flask -->
+  <script src="{{ url_for('static', filename='js/donationForm.js') }}"></script>
+</body>
+</html>
