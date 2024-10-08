@@ -49,14 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const inputs = newDeviceEntry.querySelectorAll('input, select');
     inputs.forEach(input => {
-      const newId = `${input.name}-${deviceEntryCounter}`;
-      input.id = newId;
       input.value = '';
+      if (input.type === 'file') {
+        input.value = null; // reset file input
+      }
 
-      let fieldMessage = newDeviceEntry.querySelector(`#${input.name}Message`);
-      if (fieldMessage) {
-        fieldMessage.id = `${newId}Message`;
-        fieldMessage.innerHTML = '';
+      // Remove any field messages
+      let fieldMessage = input.nextElementSibling;
+      if (fieldMessage && fieldMessage.classList.contains('field-message')) {
+        fieldMessage.parentNode.removeChild(fieldMessage);
       }
     });
 
@@ -64,12 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     deviceEntryCounter++;
   }
 
-  function showFieldMessage(fieldId, message, type) {
-    let fieldMessage = document.querySelector(`#${fieldId}Message`);
-    if (!fieldMessage) {
+  function showFieldMessage(fieldElement, message, type) {
+    let fieldMessage = fieldElement.nextElementSibling;
+    if (!fieldMessage || !fieldMessage.classList.contains('field-message')) {
       fieldMessage = document.createElement('div');
-      fieldMessage.id = `${fieldId}Message`;
-      document.querySelector(`#${fieldId}`).insertAdjacentElement('afterend', fieldMessage);
+      fieldMessage.classList.add('field-message');
+      fieldElement.insertAdjacentElement('afterend', fieldMessage);
     }
     fieldMessage.innerHTML = `<p style="color: ${type === 'error' ? 'red' : 'green'};">${message}</p>`;
   }
@@ -79,19 +80,24 @@ document.addEventListener('DOMContentLoaded', () => {
     formMessages.innerHTML = `<p style="color: ${type === 'error' ? 'red' : 'green'};">${message}</p>`;
   }
 
-  function clearFieldMessage(fieldId) {
-    const fieldMessage = document.querySelector(`#${fieldId}Message`);
-    if (fieldMessage) fieldMessage.innerHTML = '';
+  function clearFieldMessage(fieldElement) {
+    let fieldMessage = fieldElement.nextElementSibling;
+    if (fieldMessage && fieldMessage.classList.contains('field-message')) {
+      fieldMessage.innerHTML = '';
+    }
   }
 
   function clearAllMessages() {
-    ['nombre', 'email', 'telefono', 'region', 'comuna'].forEach(id => clearFieldMessage(id));
+    ['nombre', 'email', 'telefono', 'region', 'comuna'].forEach(id => {
+      const fieldElement = document.getElementById(id);
+      if (fieldElement) clearFieldMessage(fieldElement);
+    });
 
     const deviceEntries = Array.from(deviceContainer.getElementsByClassName('device-entry'));
     deviceEntries.forEach(entry => {
-      ['nombreDispositivo', 'tipo', 'aniosUso', 'estado', 'fotos'].forEach(name => {
-        const fieldMessage = entry.querySelector(`#${name}-${deviceEntryCounter - 1}Message`);
-        if (fieldMessage) fieldMessage.innerHTML = '';
+      const inputs = entry.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        clearFieldMessage(input);
       });
     });
 
@@ -102,33 +108,38 @@ document.addEventListener('DOMContentLoaded', () => {
   function validateContactForm() {
     let isValid = true;
 
-    const nombre = document.getElementById('nombre').value.trim();
+    const nombreInput = document.getElementById('nombre');
+    const nombre = nombreInput.value.trim();
     if (nombre.length < 3 || nombre.length > 80) {
-      showFieldMessage('nombre', 'El nombre del donante debe tener entre 3 y 80 caracteres.', 'error');
+      showFieldMessage(nombreInput, 'El nombre del donante debe tener entre 3 y 80 caracteres.', 'error');
       isValid = false;
     }
 
-    const email = document.getElementById('email').value.trim();
+    const emailInput = document.getElementById('email');
+    const email = emailInput.value.trim();
     if (!/\S+@\S+\.\S+/.test(email)) {
-      showFieldMessage('email', 'El email del donante no es válido.', 'error');
+      showFieldMessage(emailInput, 'El email del donante no es válido.', 'error');
       isValid = false;
     }
 
-    const telefono = document.getElementById('telefono').value.trim();
+    const telefonoInput = document.getElementById('telefono');
+    const telefono = telefonoInput.value.trim();
     if (telefono && (!/^\d+$/.test(telefono) || telefono.length < 10 || telefono.length > 15)) {
-      showFieldMessage('telefono', 'El número de celular debe contener entre 10 y 15 dígitos y solo números.', 'error');
+      showFieldMessage(telefonoInput, 'El número de celular debe contener entre 10 y 15 dígitos y solo números.', 'error');
       isValid = false;
     }
 
-    const region = document.getElementById('region').value;
+    const regionSelect = document.getElementById('region');
+    const region = regionSelect.value;
     if (!region) {
-      showFieldMessage('region', 'Por favor, selecciona una región.', 'error');
+      showFieldMessage(regionSelect, 'Por favor, selecciona una región.', 'error');
       isValid = false;
     }
 
-    const comuna = document.getElementById('comuna').value;
+    const comunaSelect = document.getElementById('comuna');
+    const comuna = comunaSelect.value;
     if (!comuna) {
-      showFieldMessage('comuna', 'Por favor, selecciona una comuna.', 'error');
+      showFieldMessage(comunaSelect, 'Por favor, selecciona una comuna.', 'error');
       isValid = false;
     }
 
@@ -138,27 +149,38 @@ document.addEventListener('DOMContentLoaded', () => {
   function validateDeviceEntry(deviceEntry) {
     let isValid = true;
 
-    const nombreDispositivo = deviceEntry.querySelector('input[name="nombreDispositivo"]').value.trim();
+    const nombreDispositivoInput = deviceEntry.querySelector('input[name="nombreDispositivo"]');
+    const nombreDispositivo = nombreDispositivoInput.value.trim();
     if (nombreDispositivo.length < 3 || nombreDispositivo.length > 100) {
-      showFieldMessage(`${deviceEntry.querySelector('input[name="nombreDispositivo"]').id}`, 'El nombre del dispositivo debe tener entre 3 y 100 caracteres.', 'error');
+      showFieldMessage(nombreDispositivoInput, 'El nombre del dispositivo debe tener entre 3 y 100 caracteres.', 'error');
       isValid = false;
     }
 
-    const tipo = deviceEntry.querySelector('select[name="tipo"]').value;
+    const tipoSelect = deviceEntry.querySelector('select[name="tipo"]');
+    const tipo = tipoSelect.value;
     if (!tipo) {
-      showFieldMessage(`${deviceEntry.querySelector('select[name="tipo"]').id}`, 'Por favor, selecciona un tipo de dispositivo.', 'error');
+      showFieldMessage(tipoSelect, 'Por favor, selecciona un tipo de dispositivo.', 'error');
       isValid = false;
     }
 
-    const aniosUso = deviceEntry.querySelector('input[name="aniosUso"]').value;
+    const aniosUsoInput = deviceEntry.querySelector('input[name="aniosUso"]');
+    const aniosUso = aniosUsoInput.value;
     if (!aniosUso || isNaN(aniosUso) || aniosUso < 0) {
-      showFieldMessage(`${deviceEntry.querySelector('input[name="aniosUso"]').id}`, 'Por favor, introduce un número válido de años de uso.', 'error');
+      showFieldMessage(aniosUsoInput, 'Por favor, introduce un número válido de años de uso.', 'error');
       isValid = false;
     }
 
-    const estado = deviceEntry.querySelector('select[name="estado"]').value;
+    const estadoSelect = deviceEntry.querySelector('select[name="estado"]');
+    const estado = estadoSelect.value;
     if (!estado) {
-      showFieldMessage(`${deviceEntry.querySelector('select[name="estado"]').id}`, 'Por favor, selecciona el estado del dispositivo.', 'error');
+      showFieldMessage(estadoSelect, 'Por favor, selecciona el estado del dispositivo.', 'error');
+      isValid = false;
+    }
+
+    const fotosInput = deviceEntry.querySelector('input[name="fotos"]');
+    const fotos = fotosInput.files;
+    if (fotos.length > 3) {
+      showFieldMessage(fotosInput, 'Puedes subir un máximo de 3 imágenes.', 'error');
       isValid = false;
     }
 
@@ -194,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
     hideConfirmationSection();
     setTimeout(() => {
-      window.location.href = 'index.html';
+      window.location.href = '/';
     }, 2000);
   });
 
@@ -215,6 +237,4 @@ document.addEventListener('DOMContentLoaded', () => {
   addDeviceButton.addEventListener('click', () => {
     addDeviceEntry();
   });
-
-  loadRegions();
 });
