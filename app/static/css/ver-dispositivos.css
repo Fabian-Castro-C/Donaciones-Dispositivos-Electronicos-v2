@@ -1,0 +1,115 @@
+/* Reseteo básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilos del cuerpo */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 0 20px;
+}
+
+/* Encabezado y menú de navegación */
+header {
+  background-color: #2572df;
+  color: #fff;
+  padding: 15px 20px;
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 4px solid #0056a0;
+}
+
+header h1 {
+  margin-bottom: 10px;
+  font-size: 2em;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+nav ul li {
+  margin: 0 20px;
+}
+
+nav ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+nav ul li a:hover {
+  text-decoration: underline;
+}
+
+/* Contenedor centrado */
+.container {
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+  margin: 0 auto;
+  padding: 20px;
+  overflow-x: auto; /* Permite el desplazamiento horizontal si el contenido es más ancho que el contenedor */
+}
+
+/* Sección principal */
+section {
+  background: #fff;
+  padding: 30px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos de la tabla */
+table {
+  width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+  border-collapse: collapse;
+  margin: 20px 0;
+  table-layout: auto; /* Asegura que las columnas se ajusten al contenido */
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  word-wrap: break-word; /* Permite que el contenido se ajuste dentro de la celda */
+}
+
+th {
+  background-color: #2572df;
+  color: white;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+td img {
+  max-width: 120px;
+  max-height: 120px;
+  display: block;
+  width: auto; /* Asegura que la imagen mantenga su proporción */
+  height: auto; /* Asegura que la imagen mantenga su proporción */
+}
+
+/* Pie de página */
+footer {
+  text-align: center;
+  margin-top: 30px;
+  color: #777;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+}
+
+footer p {
+  font-size: 1em;
+}

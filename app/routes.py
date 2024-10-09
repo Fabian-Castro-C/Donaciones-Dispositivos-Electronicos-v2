@@ -82,4 +82,4 @@ def get_comunas(region_id):
 
 @app.route('/ver_dispositivos')
 def ver_dispositivos():
-    return print('ver-dispositivos')
+    return render_template('ver-dispositivos.html', )

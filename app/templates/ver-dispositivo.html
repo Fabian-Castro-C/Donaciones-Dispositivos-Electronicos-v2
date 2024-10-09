@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ver Dispositivos</title>
+  <!-- Cargar el CSS de forma dinámica con Flask -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ver-dispositivos.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Donaciones de Dispositivos Electrónicos</h1>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('index') }}">Inicio</a></li>
+        <li><a href="{{ url_for('agregar_donacion') }}">Agregar Donación</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <main>
+      <section>
+        <h2>Listado de Dispositivos Donados</h2>
+        <table id="deviceTable">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Nombre del Dispositivo</th>
+              <th>Estado</th>
+              <th>Comuna</th>
+              <th>Fotos</th>
+            </tr>
+          </thead>
+          <tbody id="deviceTableBody">
+            <!-- Se insertarán las filas dinámicamente usando Jinja -->
+            {% for dispositivo in dispositivos %}
+            <tr onclick="window.location.href='{{ url_for('ver_dispositivo', id=dispositivo.id) }}'">
+              <td>{{ dispositivo.tipo }}</td>
+              <td>{{ dispositivo.nombre }}</td>
+              <td>{{ dispositivo.estado }}</td>
+              <td>{{ dispositivo.comuna }}</td>
+              <td>
+                <img src="{{ url_for('static', filename=dispositivo.foto) }}" alt="Foto del dispositivo">
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Paginación -->
+      <div class="pagination">
+        {% if pagina_actual > 1 %}
+        <a href="{{ url_for('ver_dispositivos', pagina=pagina_actual-1) }}" class="button">Anterior</a>
+        {% endif %}
+
+        {% if hay_mas_dispositivos %}
+        <a href="{{ url_for('ver_dispositivos', pagina=pagina_actual+1) }}" class="button">Siguiente</a>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Donaciones de Dispositivos Electrónicos</p>
+  </footer>
+</body>
+</html>
