@@ -1,6 +1,7 @@
 from app.db_service import obtener_conexion
 from flask import request
 import re
+import filetype
 
 def get_contact():
     """Obtiene los datos del contacto desde el formulario"""
@@ -110,13 +111,33 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
         })
 
     # Validar fotos
-    if validate_files(files):
+    max_files = 3
+    allowed_mime_types = ['image/jpeg', 'image/png', 'image/tiff']  # Tipos de imágenes permitidos
+    errores = []
+
+    # Verificar número de archivos
+    if len(files) > max_files:
         errores.append({
             'campo': 'fotos',
             'mensaje': 'Puedes subir un máximo de 3 imágenes.'
         })
 
-    return
+    # Validar cada archivo
+    for file in files:
+        # Leer el contenido del archivo para determinar el tipo
+        kind = filetype.guess(file)
+        if kind is None:
+            errores.append({
+                'campo': 'fotos',
+                'mensaje': f'El archivo {file.filename} no es un archivo válido.'
+            })
+        elif kind.mime not in allowed_mime_types:
+            errores.append({
+                'campo': 'fotos',
+                'mensaje': f'El archivo {file.filename} no es un tipo de imagen permitido.'
+            })
+
+    return errores
 
 def validate_email(email):
     """Valida el email del contacto"""
@@ -164,7 +185,3 @@ def validate_comuna(comuna, region):
     except Exception as e:
         print(f"Error al obtener las comunas: {e}")
         return False
-    
-def validate_files(files):
-    # TODO implementar validación de archivos
-    return False
