@@ -44,33 +44,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalDeviceEntry = document.getElementById('device-entry');
     const newDeviceEntry = originalDeviceEntry.cloneNode(true);
     const newIndex = deviceEntryCounter;
-
+  
     newDeviceEntry.removeAttribute('id');
     newDeviceEntry.classList.add('device-entry');
-
+  
     const inputs = newDeviceEntry.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
       const name = input.getAttribute('name');
       if (name) {
+        // Actualizar el índice en el atributo 'name'
         const newName = name.replace(/\[\d+\]/, `[${newIndex}]`);
         input.setAttribute('name', newName);
-        input.id = input.id.replace(/\-\d+$/, `-${newIndex}`)
-        input.value = '';
       }
+  
+      const id = input.getAttribute('id');
+      if (id) {
+        // Actualizar el índice en el atributo 'id'
+        const newId = id.replace(/-\d+$/, `-${newIndex}`);
+        input.setAttribute('id', newId);
+      }
+  
+      // Restablecer el valor del campo
+      input.value = '';
       if (input.type === 'file') {
-        input.value = null; // reset file input
+        input.value = null; // resetear campo de archivo
       }
-
-      // Remove any field messages
+  
+      // Eliminar mensajes de error asociados
       let fieldMessage = input.nextElementSibling;
       if (fieldMessage && fieldMessage.classList.contains('field-message')) {
         fieldMessage.parentNode.removeChild(fieldMessage);
       }
     });
-
+  
+    // Actualizar los atributos 'for' de las etiquetas 'label' para que coincidan con los nuevos 'id'
+    const labels = newDeviceEntry.querySelectorAll('label');
+    labels.forEach(label => {
+      const forAttr = label.getAttribute('for');
+      if (forAttr) {
+        // Actualizar el índice en el atributo 'for'
+        const newFor = forAttr.replace(/-\d+$/, `-${newIndex}`);
+        label.setAttribute('for', newFor);
+      }
+    });
+  
     deviceContainer.appendChild(newDeviceEntry);
     deviceEntryCounter++;
   }
+  
 
   function showFieldMessage(fieldElement, message, type) {
     let fieldMessage = fieldElement.nextElementSibling;
@@ -79,7 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
       fieldMessage.classList.add('field-message');
       fieldElement.insertAdjacentElement('afterend', fieldMessage);
     }
-    fieldMessage.innerHTML = `<p style="color: ${type === 'error' ? 'red' : 'green'};">${message}</p>`;
+    // Crear un nuevo elemento de mensaje y añadirlo
+    const messageElement = document.createElement('p');
+    messageElement.style.color = (type === 'error' ? 'red' : 'green');
+    messageElement.textContent = message;
+    fieldMessage.appendChild(messageElement);
   }
 
   function showGlobalMessage(message, type) {
@@ -232,20 +257,30 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/agregar_donacion', {method: 'POST', body: formData})
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
+      if (data.status === 'success') {
         showGlobalMessage('Hemos recibido la información de su donación. Muchas gracias.', 'success');
         form.reset();
         hideConfirmationSection();
         setTimeout(() => {
           window.location.href = '/';
         }, 2000);
-      } else if (data.errores) {
-        // Show errors pull from the server
+      } else if (data.status === 'error' && data.errores) {
+        // Clear previous messages
         clearAllMessages();
+
+        // Hide confirmation section
+        hideConfirmationSection();
+        
+        // Show each error message in the appropriate field
         data.errores.forEach(error => {
           const fieldElement = document.getElementById(error.campo);
+          console.log(error.campo);
+          console.log(fieldElement);
           if (fieldElement) {
             showFieldMessage(fieldElement, error.mensaje, 'error');
+          } else{
+            // Handle global errors or messages that aren't tied to specific fields
+            showGlobalMessage(error.mensaje, 'error');
           }
         });
       } else {
@@ -253,9 +288,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }).catch(error => {
       console.error('Error al enviar la información:', error);
+      hideConfirmationSection();
       showGlobalMessage('Ha ocurrido un error al enviar la información. Por favor, inténtalo de nuevo.', 'error');
     });
   });
+
 
   cancelButton.addEventListener('click', () => {
     showGlobalMessage('Has cancelado la confirmación de la donación.', 'error');

@@ -11,6 +11,8 @@ def get_contact():
     region = request.form.get('region')
     comuna = request.form.get('comuna')
 
+    print(region)
+
     return {
         'name': name,
         'email': email,
@@ -68,7 +70,7 @@ def validate_contact(name, email, phone, region, comuna):
             'mensaje': 'Por favor, selecciona una región.'
         })
 
-    if not validate_comuna(comuna):
+    if not validate_comuna(comuna, region):
         errores.append({
             'campo': 'comuna',
             'mensaje': 'Por favor, selecciona una comuna.'
@@ -83,13 +85,13 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
     # Validar nombre del dispositivo
     if not name_device or len(name_device) < 3 or len(name_device) > 80:
         errores.append({
-            'campo': f'dispositivos[{index}][nombreDispositivo]',
+            'campo': f'nombreDispositivo-{index}',
             'mensaje': 'El nombre del dispositivo debe tener entre 3 y 80 caracteres.'
         })
     # Validar descripción
     if description and len(description) > 300:
         errores.append({
-            'campo': f'dispositivos[{index}][descripcion]',
+            'campo': f'descripcion-{index}',
             'mensaje': 'La descripción del dispositivo debe tener máximo 300 caracteres.'
         })
 
@@ -97,14 +99,14 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
     tipos_validos = ["Pantalla", "Notebook", "Tablet", "Celular", "Consola", "Mouse", "Teclado", "Impresora", "Parlante", "Audifonos", "Otro"]
     if type_device not in tipos_validos:
         errores.append({
-            'campo': f'dispositivos[{index}][tipo]',
+            'campo': f'tipo-{index}',
             'mensaje': 'Por favor, selecciona un tipo de dispositivo.'
         })
 
     # Validar años de uso
     if not (years.isdigit() and 0 <= int(years)):
         errores.append({
-            'campo': f'dispositivos[{index}][aniosUso]',
+            'campo': f'aniosUso-{index}',
             'mensaje': 'Por favor, introduce un número válido de años de uso.'
         })
 
@@ -112,19 +114,19 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
     estados_validos = ["Funciona perfecto", "Funciona a medias", "No funciona"]
     if status not in estados_validos:
         errores.append({
-            'campo': f'dispositivos[{index}][estado]',
+            'campo': f'estado-{index}',
             'mensaje': 'Por favor, selecciona el estado del dispositivo.'
         })
 
     # Validar fotos
     max_files = 3
     allowed_mime_types = ['image/jpeg', 'image/png', 'image/tiff']  # Tipos de imágenes permitidos
-    errores = []
+    errores_fotos = []
 
     # Verificar número de archivos
     if len(files) > max_files:
-        errores.append({
-            'campo': f'dispositivos[{index}][fotos]',
+        errores_fotos.append({
+            'campo': f'fotos-{index}',
             'mensaje': 'Puedes subir un máximo de 3 imágenes.'
         })
 
@@ -134,15 +136,18 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
             # Leer el contenido del archivo para determinar el tipo
             kind = filetype.guess(file)
             if kind is None:
-                errores.append({
-                    'campo': f'dispositivos[{index}][fotos]',
+                errores_fotos.append({
+                    'campo': f'fotos-{index}',
                     'mensaje': f'El archivo {file.filename} no es un archivo válido.'
                 })
             elif kind.mime not in allowed_mime_types:
-                errores.append({
-                    'campo': 'fotos',
+                errores_fotos.append({
+                    'campo': f'fotos-{index}',
                     'mensaje': f'El archivo {file.filename} no es un tipo de imagen permitido.'
                 })
+    
+    if errores_fotos:
+        errores.extend(errores_fotos)
 
     return errores
 
@@ -156,39 +161,34 @@ def validate_phone(phone):
     phone_regex = r'^\d{10,15}$'
     return re.match(phone_regex, phone) is not None
 
-def validate_region(region):
-    """Valida la region comparando con la base de datos"""
+def validate_region(region_id):
+    """Valida la región verificando si el ID existe en la base de datos"""
     conexion = obtener_conexion()
     try:
         with conexion.cursor() as cursor:
-            sql = "SELECT nombre FROM region"
-            cursor.execute(sql)
-            for row in cursor.fetchall():
-                if region == row['nombre']:
-                    return True
-                else:
-                    return False
+            sql = "SELECT 1 FROM region WHERE id = %s"
+            cursor.execute(sql, (region_id,))
+            result = cursor.fetchone()
+            return result is not None
     except Exception as e:
-        print(f"Error al obtener las regiones: {e}")
+        print(f"Error al validar la región: {e}")
         return False
 
-def validate_comuna(comuna, region):
-    """Valida la comuna comparando con la base de datos"""
+
+
+def validate_comuna(comuna_id, region_id):
+    """Valida la comuna verificando si existe en la región especificada"""
     conexion = obtener_conexion()
     try:
         with conexion.cursor() as cursor:
             sql = """
-                SELECT comuna.nombre
+                SELECT 1
                 FROM comuna
-                JOIN region ON comuna.region_id = region.id
-                WHERE region.nombre = %s
+                WHERE id = %s AND region_id = %s
             """
-            cursor.execute(sql, (region,))
-            for row in cursor.fetchall():
-                if comuna == row['nombre']:
-                    return True
-                else:
-                    return False
+            cursor.execute(sql, (comuna_id, region_id))
+            result = cursor.fetchone()
+            return result is not None
     except Exception as e:
-        print(f"Error al obtener las comunas: {e}")
+        print(f"Error al validar la comuna: {e}")
         return False

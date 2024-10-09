@@ -49,13 +49,13 @@
           <legend>Información del Dispositivo</legend>
 
           <div id="device-entry" class="device-entry">
-            <label for="nombreDispositivo">Nombre del Dispositivo:</label>
+            <label for="nombreDispositivo-0">Nombre del Dispositivo:</label>
             <input type="text" name="dispositivos[0][nombreDispositivo]" id="nombreDispositivo-0" maxlength="80" required>
 
-            <label for="descripcion">Descripción:</label>
+            <label for="descripcion-0">Descripción:</label>
             <textarea name="dispositivos[0][descripcion]" id="descripcion-0" rows="4" cols="50"></textarea>
 
-            <label for="tipo">Tipo de Dispositivo:</label>
+            <label for="tipo-0">Tipo de Dispositivo:</label>
             <select name="dispositivos[0][tipo]" id="tipo-0" required>
               <option value="">Seleccione un tipo</option>
               <option value="Pantalla">Pantalla</option>
@@ -71,10 +71,10 @@
               <option value="Otro">Otro</option>
             </select>
 
-            <label for="aniosUso">Años de Uso:</label>
+            <label for="aniosUso-0">Años de Uso:</label>
             <input type="number" name="dispositivos[0][aniosUso]" id="aniosUso-0" min="1" max="99" required>
 
-            <label for="estado">Estado de Funcionamiento:</label>
+            <label for="estado-0">Estado de Funcionamiento:</label>
             <select name="dispositivos[0][estado]" id="estado-0" required>
               <option value="">Seleccione un estado</option>
               <option value="Funciona perfecto">Funciona perfecto</option>
@@ -82,7 +82,7 @@
               <option value="No funciona">No funciona</option>
             </select>
 
-            <label for="fotos">Fotos del Producto:</label>
+            <label for="fotos-0">Fotos del Producto:</label>
             <input type="file" name="dispositivos[0][fotos]" id="fotos-0" accept="image/*" multiple required>
           </div>
         </fieldset>
