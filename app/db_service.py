@@ -2,6 +2,7 @@ import pymysql, os
 from app.config import Config
 from werkzeug.utils import secure_filename
 from flask import current_app
+from datetime import datetime
 
 def obtener_conexion():
     """Crea y devuelve una conexión a la base de datos."""
@@ -44,16 +45,20 @@ def insertar_donacion(contacto, dispositivos):
         # Iniciar una transacción
         conexion.begin()
 
+        # Obtener la fecha actual
+        fecha_creacion = datetime.now()
+
         # Insertar el contacto y obtener su ID
         sql_contacto = """
-            INSERT INTO contacto (nombre, email, celular, comuna_id)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO contacto (nombre, email, celular, comuna_id, fecha_creacion)
+            VALUES (%s, %s, %s, %s, %s)
         """
         cursor.execute(sql_contacto, (
             contacto['name'],
             contacto['email'],
             contacto['phone'],
-            contacto['comuna']
+            contacto['comuna'],
+            fecha_creacion
         ))
         contacto_id = cursor.lastrowid  # Obtener el ID del contacto insertado
 

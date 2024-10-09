@@ -120,7 +120,7 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
 
     # Validar fotos
     max_files = 3
-    allowed_mime_types = ['image/jpeg', 'image/png', 'image/tiff']  # Tipos de imágenes permitidos
+    allowed_mime_types = ['image/jpeg', 'image/png', 'image/tiff', 'image/webp']  # Tipos de imágenes permitidos
     errores_fotos = []
 
     # Verificar número de archivos

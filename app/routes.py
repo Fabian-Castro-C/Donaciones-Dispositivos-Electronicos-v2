@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify
 from app import app
-from app.db_service import obtener_regiones, obtener_conexion
+from app.db_service import obtener_regiones, obtener_conexion, insertar_donacion
 from app.validations import get_contact, get_deviceEntry, validate_contact, validate_deviceEntry
 
 @app.route('/')
@@ -58,7 +58,7 @@ def agregar_donacion():
             return jsonify({'status': 'error', 'errores': errores})
     
         # Si no hay errores, guardamos la donación en la base de datos
-        # insertar_donacion(contacto, dispositivos)
+        insertar_donacion(contacto, dispositivos)
         return jsonify({'status': 'success', 'message': 'Donación registrada exitosamente.'})
     
     if request.method == 'GET':
