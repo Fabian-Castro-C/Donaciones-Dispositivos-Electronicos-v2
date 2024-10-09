@@ -10,7 +10,8 @@ def index():
 def agregar_donacion():
     regiones = obtener_regiones()
     if request.method == 'POST':
-        # Lógica de manejo de formulario aquí
+        # TODO implementar la lógica para guardar la donación
+        print('Validar datos')
         pass
     return render_template('agregar-donacion.html', regiones=regiones)
 

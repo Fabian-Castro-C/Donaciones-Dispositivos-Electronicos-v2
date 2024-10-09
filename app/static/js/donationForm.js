@@ -43,13 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function addDeviceEntry() {
     const originalDeviceEntry = document.getElementById('device-entry');
     const newDeviceEntry = originalDeviceEntry.cloneNode(true);
+    const newIndex = deviceEntryCounter;
 
     newDeviceEntry.removeAttribute('id');
     newDeviceEntry.classList.add('device-entry');
 
-    const inputs = newDeviceEntry.querySelectorAll('input, select');
+    const inputs = newDeviceEntry.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
-      input.value = '';
+      const name = input.getAttribute('name');
+      if (name) {
+        const newName = name.replace(/\[\d+\]/, `[${newIndex}]`);
+        input.setAttribute('name', newName);
+        input.id = input.id.replace(/\-\d+$/, `-${newIndex}`)
+        input.value = '';
+      }
       if (input.type === 'file') {
         input.value = null; // reset file input
       }
@@ -146,38 +153,45 @@ document.addEventListener('DOMContentLoaded', () => {
     return isValid;
   }
 
-  function validateDeviceEntry(deviceEntry) {
+  function validateDeviceEntry(deviceEntry, index) {
     let isValid = true;
 
-    const nombreDispositivoInput = deviceEntry.querySelector('input[name="nombreDispositivo"]');
+    const nombreDispositivoInput = deviceEntry.querySelector(`input[name="dispositivos[${index}][nombreDispositivo]"]`);
+    console.log(nombreDispositivoInput);
     const nombreDispositivo = nombreDispositivoInput.value.trim();
-    if (nombreDispositivo.length < 3 || nombreDispositivo.length > 100) {
-      showFieldMessage(nombreDispositivoInput, 'El nombre del dispositivo debe tener entre 3 y 100 caracteres.', 'error');
+    if (nombreDispositivo.length < 3 || nombreDispositivo.length > 80) {
+      showFieldMessage(nombreDispositivoInput, 'El nombre del dispositivo debe tener entre 3 y 80 caracteres.', 'error');
       isValid = false;
     }
 
-    const tipoSelect = deviceEntry.querySelector('select[name="tipo"]');
+    const descripcionInput = deviceEntry.querySelector(`textarea[name="dispositivos[${index}][descripcion]"]`);
+    const descripcion = descripcionInput.value.trim();
+    if (descripcion.length > 300) {
+      showFieldMessage(descripcionInput, 'La descripción del dispositivo debe tener máximo 300 caracteres.', 'error');
+    }
+
+    const tipoSelect = deviceEntry.querySelector(`select[name="dispositivos[${index}][tipo]"]`);
     const tipo = tipoSelect.value;
     if (!tipo) {
       showFieldMessage(tipoSelect, 'Por favor, selecciona un tipo de dispositivo.', 'error');
       isValid = false;
     }
 
-    const aniosUsoInput = deviceEntry.querySelector('input[name="aniosUso"]');
+    const aniosUsoInput = deviceEntry.querySelector(`input[name="dispositivos[${index}][aniosUso]"]`);
     const aniosUso = aniosUsoInput.value;
     if (!aniosUso || isNaN(aniosUso) || aniosUso < 0) {
       showFieldMessage(aniosUsoInput, 'Por favor, introduce un número válido de años de uso.', 'error');
       isValid = false;
     }
 
-    const estadoSelect = deviceEntry.querySelector('select[name="estado"]');
+    const estadoSelect = deviceEntry.querySelector(`select[name="dispositivos[${index}][estado]"]`);
     const estado = estadoSelect.value;
     if (!estado) {
       showFieldMessage(estadoSelect, 'Por favor, selecciona el estado del dispositivo.', 'error');
       isValid = false;
     }
 
-    const fotosInput = deviceEntry.querySelector('input[name="fotos"]');
+    const fotosInput = deviceEntry.querySelector(`input[name="dispositivos[${index}][fotos]"]`);
     const fotos = fotosInput.files;
     if (fotos.length > 3) {
       showFieldMessage(fotosInput, 'Puedes subir un máximo de 3 imágenes.', 'error');
@@ -193,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let areDevicesValid = true;
     const deviceEntries = Array.from(deviceContainer.getElementsByClassName('device-entry'));
-    deviceEntries.forEach(entry => {
-      const isValid = validateDeviceEntry(entry);
+    deviceEntries.forEach((entry, index) => {
+      const isValid = validateDeviceEntry(entry, index);
       if (!isValid) {
         areDevicesValid = false;
       }
@@ -212,12 +226,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   confirmButton.addEventListener('click', () => {
-    showGlobalMessage('Hemos recibido la información de su donación. Muchas gracias.', 'success');
-    form.reset();
-    hideConfirmationSection();
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 2000);
+    const formData = new FormData(form);
+
+    // Add device entries to form data
+    fetch('/agregar_donacion', {method: 'POST', body: formData})
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showGlobalMessage('Hemos recibido la información de su donación. Muchas gracias.', 'success');
+        form.reset();
+        hideConfirmationSection();
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else if (data.errores) {
+        // Show errors pull from the server
+        clearAllMessages();
+        data.errores.forEach(error => {
+          const fieldElement = document.getElementById(error.campo);
+          if (fieldElement) {
+            showFieldMessage(fieldElement, error.mensaje, 'error');
+          }
+        });
+      } else {
+        showGlobalMessage('Ha ocurrido un error al enviar la información. Por favor, inténtalo de nuevo.', 'error');
+      }
+    }).catch(error => {
+      console.error('Error al enviar la información:', error);
+      showGlobalMessage('Ha ocurrido un error al enviar la información. Por favor, inténtalo de nuevo.', 'error');
+    });
   });
 
   cancelButton.addEventListener('click', () => {
