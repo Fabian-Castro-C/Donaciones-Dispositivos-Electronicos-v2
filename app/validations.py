@@ -1,4 +1,6 @@
+from app.db_service import obtener_conexion
 from flask import request
+import re
 
 def get_contact():
     """Obtiene los datos del contacto desde el formulario"""
@@ -74,23 +76,95 @@ def validate_contact(name, email, phone, region, comuna):
     return errores
 
 def validate_deviceEntry(name_device, description, type_device, years, status, files):
-    # TODO Implementar validacion del dispositivo
-    print(name_device)
+    """Valida los datos del dispositivo y devuelve la lista de errores"""
+    errores = []
+
+    # Validar nombre del dispositivo
+    tipos_validos = ["Pantalla", "Notebook", "Tablet", "Celular", "Consola", "Mouse", "Teclado", "Impresora", "Parlante", "Audifonos", "Otro"]
+    if type_device not in tipos_validos:
+        errores.append({
+            'campo': 'tipo',
+            'mensaje': 'El nombre del dispositivo debe tener entre 3 y 80 caracteres.'
+        })
+
+    # Validar descripción
+    if description and len(description) > 300:
+        errores.append({
+            'campo': 'descripcion',
+            'mensaje': 'La descripción del dispositivo debe tener máximo 300 caracteres.'
+        })
+
+    # Validar años de uso
+    if not (years.isdigit() and 0 <= int(years)):
+        errores.append({
+            'campo': 'aniosUso',
+            'mensaje': 'Por favor, introduce un número válido de años de uso.'
+        })
+
+    # Validar estado de funcionamiento
+    estados_validos = ["Funciona perfecto", "Funciona a medias", "No funciona"]
+    if status not in estados_validos:
+        errores.append({
+            'campo': 'estado',
+            'mensaje': 'Por favor, selecciona el estado del dispositivo.'
+        })
+
+    # Validar fotos
+    if validate_files(files):
+        errores.append({
+            'campo': 'fotos',
+            'mensaje': 'Puedes subir un máximo de 3 imágenes.'
+        })
+
     return
 
 def validate_email(email):
-    # TODO Implementar validacion del email
-    return
+    """Valida el email del contacto"""
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(email_regex, email) is not None
 
 def validate_phone(phone):
-    # TODO Implementar validacion del telefono
-    return
+    """Valida el número de teléfono del contacto"""
+    phone_regex = r'^\d{10,15}$'
+    return re.match(phone_regex, phone) is not None
 
 def validate_region(region):
-    # TODO Implementar validacion de la region
-    return
+    """Valida la region comparando con la base de datos"""
+    conexion = obtener_conexion()
+    try:
+        with conexion.cursor() as cursor:
+            sql = "SELECT nombre FROM region"
+            cursor.execute(sql)
+            for row in cursor.fetchall():
+                if region == row['nombre']:
+                    return True
+                else:
+                    return False
+    except Exception as e:
+        print(f"Error al obtener las regiones: {e}")
+        return False
 
-def validate_comuna(comuna):
-    # TODO Implementar validacion de la comuna
-    return
-
+def validate_comuna(comuna, region):
+    """Valida la comuna comparando con la base de datos"""
+    conexion = obtener_conexion()
+    try:
+        with conexion.cursor() as cursor:
+            sql = """
+                SELECT comuna.nombre
+                FROM comuna
+                JOIN region ON comuna.region_id = region.id
+                WHERE region.nombre = %s
+            """
+            cursor.execute(sql, (region,))
+            for row in cursor.fetchall():
+                if comuna == row['nombre']:
+                    return True
+                else:
+                    return False
+    except Exception as e:
+        print(f"Error al obtener las comunas: {e}")
+        return False
+    
+def validate_files(files):
+    # TODO implementar validación de archivos
+    return False
