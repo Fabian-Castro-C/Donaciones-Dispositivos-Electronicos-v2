@@ -76,29 +76,35 @@ def validate_contact(name, email, phone, region, comuna):
     
     return errores
 
-def validate_deviceEntry(name_device, description, type_device, years, status, files):
+def validate_deviceEntry(name_device, description, type_device, years, status, files, index):
     """Valida los datos del dispositivo y devuelve la lista de errores"""
     errores = []
 
     # Validar nombre del dispositivo
-    tipos_validos = ["Pantalla", "Notebook", "Tablet", "Celular", "Consola", "Mouse", "Teclado", "Impresora", "Parlante", "Audifonos", "Otro"]
-    if type_device not in tipos_validos:
+    if not name_device or len(name_device) < 3 or len(name_device) > 80:
         errores.append({
-            'campo': 'tipo',
+            'campo': f'dispositivos[{index}][nombreDispositivo]',
             'mensaje': 'El nombre del dispositivo debe tener entre 3 y 80 caracteres.'
         })
-
     # Validar descripción
     if description and len(description) > 300:
         errores.append({
-            'campo': 'descripcion',
+            'campo': f'dispositivos[{index}][descripcion]',
             'mensaje': 'La descripción del dispositivo debe tener máximo 300 caracteres.'
+        })
+
+    # Validar tipo del dispositivo
+    tipos_validos = ["Pantalla", "Notebook", "Tablet", "Celular", "Consola", "Mouse", "Teclado", "Impresora", "Parlante", "Audifonos", "Otro"]
+    if type_device not in tipos_validos:
+        errores.append({
+            'campo': f'dispositivos[{index}][tipo]',
+            'mensaje': 'Por favor, selecciona un tipo de dispositivo.'
         })
 
     # Validar años de uso
     if not (years.isdigit() and 0 <= int(years)):
         errores.append({
-            'campo': 'aniosUso',
+            'campo': f'dispositivos[{index}][aniosUso]',
             'mensaje': 'Por favor, introduce un número válido de años de uso.'
         })
 
@@ -106,7 +112,7 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
     estados_validos = ["Funciona perfecto", "Funciona a medias", "No funciona"]
     if status not in estados_validos:
         errores.append({
-            'campo': 'estado',
+            'campo': f'dispositivos[{index}][estado]',
             'mensaje': 'Por favor, selecciona el estado del dispositivo.'
         })
 
@@ -118,24 +124,25 @@ def validate_deviceEntry(name_device, description, type_device, years, status, f
     # Verificar número de archivos
     if len(files) > max_files:
         errores.append({
-            'campo': 'fotos',
+            'campo': f'dispositivos[{index}][fotos]',
             'mensaje': 'Puedes subir un máximo de 3 imágenes.'
         })
 
-    # Validar cada archivo
-    for file in files:
-        # Leer el contenido del archivo para determinar el tipo
-        kind = filetype.guess(file)
-        if kind is None:
-            errores.append({
-                'campo': 'fotos',
-                'mensaje': f'El archivo {file.filename} no es un archivo válido.'
-            })
-        elif kind.mime not in allowed_mime_types:
-            errores.append({
-                'campo': 'fotos',
-                'mensaje': f'El archivo {file.filename} no es un tipo de imagen permitido.'
-            })
+    else:
+        # Validar cada archivo
+        for file in files:
+            # Leer el contenido del archivo para determinar el tipo
+            kind = filetype.guess(file)
+            if kind is None:
+                errores.append({
+                    'campo': f'dispositivos[{index}][fotos]',
+                    'mensaje': f'El archivo {file.filename} no es un archivo válido.'
+                })
+            elif kind.mime not in allowed_mime_types:
+                errores.append({
+                    'campo': 'fotos',
+                    'mensaje': f'El archivo {file.filename} no es un tipo de imagen permitido.'
+                })
 
     return errores
 
