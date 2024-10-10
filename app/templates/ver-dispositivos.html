@@ -35,13 +35,17 @@
           <tbody id="deviceTableBody">
             <!-- Se insertarán las filas dinámicamente usando Jinja -->
             {% for dispositivo in dispositivos %}
-            <tr onclick="window.location.href='{{ url_for('ver_dispositivo', id=dispositivo.id) }}'">
+            <tr onclick="window.location.href='{{ url_for('ver_dispositivos', id=dispositivo.id) }}'">
               <td>{{ dispositivo.tipo }}</td>
-              <td>{{ dispositivo.nombre }}</td>
+              <td>{{ dispositivo.nombre_dispositivo }}</td>
               <td>{{ dispositivo.estado }}</td>
-              <td>{{ dispositivo.comuna }}</td>
+              <td>{{ dispositivo.nombre_comuna }}</td>
               <td>
-                <img src="{{ url_for('static', filename=dispositivo.foto) }}" alt="Foto del dispositivo">
+                {% if dispositivo.ruta_archivo %}
+                <img src="{{ url_for('static', filename=dispositivo.ruta_archivo) }}" alt="Foto del dispositivo">
+                {% else %}
+                <p>Sin imagen</p>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}
@@ -51,14 +55,14 @@
 
       <!-- Paginación -->
       <div class="pagination">
-        {% if pagina_actual > 1 %}
-        <a href="{{ url_for('ver_dispositivos', pagina=pagina_actual-1) }}" class="button">Anterior</a>
+        {% if page > 1 %}
+        <a href="{{ url_for('ver_dispositivos', page=page-1) }}" class="button">Anterior</a>
         {% endif %}
-
-        {% if hay_mas_dispositivos %}
-        <a href="{{ url_for('ver_dispositivos', pagina=pagina_actual+1) }}" class="button">Siguiente</a>
+      
+        {% if has_next %}
+        <a href="{{ url_for('ver_dispositivos', page=page+1) }}" class="button">Siguiente</a>
         {% endif %}
-      </div>
+      </div>      
     </main>
   </div>
 

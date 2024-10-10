@@ -3,7 +3,7 @@ from app import app
 from app.db_service import obtener_regiones, obtener_conexion, insertar_donacion
 from app.validations import get_contact, get_deviceEntry, validate_contact, validate_deviceEntry
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
@@ -64,7 +64,7 @@ def agregar_donacion():
     if request.method == 'GET':
         return render_template('agregar-donacion.html', regiones=regiones)
 
-@app.route('/get_comunas/<int:region_id>')
+@app.route('/get_comunas/<int:region_id>', methods=['GET'])
 def get_comunas(region_id):
     conexion = obtener_conexion()
     try:
@@ -79,7 +79,48 @@ def get_comunas(region_id):
     finally:
         conexion.close()
 
-
-@app.route('/ver_dispositivos')
+@app.route('/ver_dispositivos', methods=['GET'])
 def ver_dispositivos():
-    return render_template('ver-dispositivos.html', )
+    page = request.args.get('page', 1, type=int)
+    per_page = 5  # Número de dispositivos por página
+    offset = (page - 1) * per_page
+
+    # Consulta para obtener dispositivos y una sola imagen (la primera) con paginación
+    dispositivos_query = """
+        SELECT
+            d.id,
+            d.tipo,
+            d.nombre AS nombre_dispositivo,
+            d.estado,
+            c.nombre AS nombre_comuna,
+            a.ruta_archivo,
+            a.nombre_archivo
+        FROM dispositivo d
+        JOIN contacto ct ON d.contacto_id = ct.id
+        JOIN comuna c ON ct.comuna_id = c.id
+        LEFT JOIN (
+            SELECT dispositivo_id, ruta_archivo, nombre_archivo
+            FROM archivo
+            WHERE id IN (
+                SELECT MIN(id)
+                FROM archivo
+                GROUP BY dispositivo_id
+            )
+        ) a ON d.id = a.dispositivo_id
+        ORDER BY d.id
+        LIMIT %s OFFSET %s;
+    """
+    conexion = obtener_conexion()
+
+    with conexion.cursor() as cursor:
+        cursor.execute(dispositivos_query, (per_page, offset))
+        dispositivos = cursor.fetchall()
+        print(dispositivos)
+
+        # Verificar si hay más dispositivos después de la página actual
+        sql = "SELECT COUNT(*) FROM dispositivo"
+        cursor.execute(sql)
+        total_dispositivos = cursor.fetchone()['COUNT(*)']
+        has_next = (page * per_page) < total_dispositivos
+
+    return render_template('ver-dispositivos.html', dispositivos=dispositivos, page=page, has_next=has_next)
