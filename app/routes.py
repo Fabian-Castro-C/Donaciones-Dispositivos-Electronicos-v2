@@ -122,5 +122,7 @@ def ver_dispositivos():
         cursor.execute(sql)
         total_dispositivos = cursor.fetchone()['COUNT(*)']
         has_next = (page * per_page) < total_dispositivos
+    
+    
 
     return render_template('ver-dispositivos.html', dispositivos=dispositivos, page=page, has_next=has_next)

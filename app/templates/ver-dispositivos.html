@@ -36,9 +36,9 @@
             <!-- Se insertarán las filas dinámicamente usando Jinja -->
             {% for dispositivo in dispositivos %}
             <tr onclick="window.location.href='{{ url_for('ver_dispositivos', id=dispositivo.id) }}'">
-              <td>{{ dispositivo.tipo }}</td>
-              <td>{{ dispositivo.nombre_dispositivo }}</td>
-              <td>{{ dispositivo.estado }}</td>
+              <td>{{ dispositivo.tipo.upper() }}</td>
+              <td>{{ dispositivo.nombre_dispositivo.title() }}</td>
+              <td>{{ dispositivo.estado.capitalize() }}</td>
               <td>{{ dispositivo.nombre_comuna }}</td>
               <td>
                 {% if dispositivo.ruta_archivo %}

@@ -3,6 +3,8 @@ from app.config import Config
 from werkzeug.utils import secure_filename
 from flask import current_app
 from datetime import datetime
+import hashlib
+
 
 def obtener_conexion():
     """Crea y devuelve una conexión a la base de datos."""
@@ -105,29 +107,38 @@ def insertar_donacion(contacto, dispositivos):
     finally:
         cursor.close()
         conexion.close()
-    
 
 def guardar_archivo(archivo, dispositivo_id):
     """
     Guarda un archivo en el servidor y devuelve la ruta y el nombre del archivo.
-
-    :param archivo: Objeto FileStorage de Flask (archivo subido).
-    :param dispositivo_id: ID del dispositivo al que pertenece el archivo.
-    :return: Tupla (ruta_relativa, nombre_archivo)
     """
     # Directorio base de subida de archivos
     UPLOAD_FOLDER = os.path.join(current_app.root_path, 'static', 'uploads', f'dispositivo_{dispositivo_id}')
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Crear el directorio si no existe
 
-    # Asegurar un nombre de archivo seguro
-    nombre_archivo = secure_filename(archivo.filename)
+    # Crear el hash del archivo sin cargarlo todo en memoria
+    hasher = hashlib.sha256()
+    archivo.stream.seek(0)  # Asegurar que estamos al principio del archivo
+    while True:
+        chunk = archivo.stream.read(8192)
+        if not chunk:
+            break
+        hasher.update(chunk)
+    archivo_hash = hasher.hexdigest()
+
+    # Obtener la extensión del archivo original de manera segura
+    nombre_archivo = secure_filename(archivo.filename) # Nombre seguro del archivo
+    _, extension = os.path.splitext(nombre_archivo) 
+    # Crear el nuevo nombre de archivo con el hash y la extensión original
+    nombre_hasheado = f"{archivo_hash}{extension}"
 
     # Ruta completa del archivo
-    ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+    ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_hasheado)
 
     # Guardar el archivo en el servidor
+    archivo.stream.seek(0)  # Volver al inicio para guardar el archivo
     archivo.save(ruta_archivo)
 
     # Devolver la ruta relativa desde 'static'
-    ruta_relativa = os.path.join('uploads', f'dispositivo_{dispositivo_id}', nombre_archivo)
+    ruta_relativa = os.path.join('uploads', f'dispositivo_{dispositivo_id}', nombre_hasheado)
     return ruta_relativa, nombre_archivo
