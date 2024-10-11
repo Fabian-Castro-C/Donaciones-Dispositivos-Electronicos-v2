@@ -158,7 +158,6 @@ def informacion_dispositivo(dispositivo_id):
             cursor.execute(fotos_query, (dispositivo_id,))
             fotos = cursor.fetchall()
 
-    
     except Exception as e:
         print(f"Error al obtener la información del dispositivo: {e}")
         return "Error al obtener la información del dispositivo", 500
