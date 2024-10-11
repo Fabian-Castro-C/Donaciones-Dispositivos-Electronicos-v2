@@ -122,8 +122,6 @@ def ver_dispositivos():
         cursor.execute(sql)
         total_dispositivos = cursor.fetchone()['COUNT(*)']
         has_next = (page * per_page) < total_dispositivos
-    
-
 
     return render_template('ver-dispositivos.html', dispositivos=dispositivos, page=page, has_next=has_next)
 
@@ -155,7 +153,6 @@ def informacion_dispositivo(dispositivo_id):
         # Verificamos si existe el dispositivo
         if not dispositivo:
             return "Dispositivo no encontrado", 404
-        
 
         # Renderizamos la página con la información del dispositivo
         return render_template('informacion-dispositivo.html', dispositivo=dispositivo, fotos=fotos)

@@ -33,7 +33,7 @@
         <h3>Fotos del Dispositivo</h3>
         {% if fotos %}
           {% for foto in fotos %}
-            <img src="{{ url_for('static', filename=foto.ruta_archivo) }}" alt="Foto del dispositivo {{ dispositivo.nombre }}" class="device-photo">
+            <img src="{{ url_for('static', filename=foto.ruta_archivo.replace('.','640x480_.')) }}" alt="Foto del dispositivo {{ dispositivo.nombre }}" class="device-photo">
           {% endfor %}
         {% else %}
           <p>No hay fotos disponibles para este dispositivo.</p>

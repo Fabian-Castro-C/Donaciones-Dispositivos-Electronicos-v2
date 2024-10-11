@@ -131,9 +131,6 @@ def guardar_archivo(archivo, dispositivo_id):
 
     # Obtener la extensión del archivo de manera segura
     _, extension = os.path.splitext(nombre_archivo_original)
-    extension = extension.lower()
-    if extension not in ['.jpg', '.jpeg', '.png']:
-        raise ValueError('Tipo de archivo no permitido')
 
     # Generar el hash del contenido del archivo para asegurar nombres únicos
     archivo_hash = generar_hash_contenido(archivo)
@@ -157,9 +154,36 @@ def guardar_archivo(archivo, dispositivo_id):
     # Crear y guardar las imágenes redimensionadas
     tamanos = [(1280, 1024), (640, 480), (120, 120)]
     for ancho, alto in tamanos:
-        image_resized = image.copy()
-        image_resized.thumbnail((ancho, alto))
-        size_suffix = f"_{ancho}x{alto}"
+        # Calcular la relación de aspecto deseada
+        aspect_ratio_desired = ancho / alto
+
+        # Obtener las dimensiones actuales de la imagen
+        ancho_original, alto_original = image.size
+        aspect_ratio_original = ancho_original / alto_original
+
+        # Determinar las dimensiones para el recorte
+        if aspect_ratio_original > aspect_ratio_desired:
+            # La imagen es más ancha que la relación de aspecto deseada
+            nuevo_ancho = int(alto_original * aspect_ratio_desired)
+            nuevo_alto = alto_original
+            offset_x = int((ancho_original - nuevo_ancho) / 2)
+            offset_y = 0
+        else:
+            # La imagen es más alta que la relación de aspecto deseada
+            nuevo_ancho = ancho_original
+            nuevo_alto = int(ancho_original / aspect_ratio_desired)
+            offset_x = 0
+            offset_y = int((alto_original - nuevo_alto) / 2)
+
+        # Recortar la imagen al área calculada
+        box = (offset_x, offset_y, offset_x + nuevo_ancho, offset_y + nuevo_alto)
+        image_cropped = image.crop(box)
+
+        # Redimensionar la imagen al tamaño deseado
+        image_resized = image_cropped.resize((ancho, alto), Image.LANCZOS)
+
+   # Guardar la imagen redimensionada
+        size_suffix = f"{ancho}x{alto}_"
         filename_resized = base_filename.replace(extension, f"{size_suffix}{extension}")
         ruta_resized = os.path.join(UPLOAD_FOLDER, filename_resized)
         image_resized.save(ruta_resized)

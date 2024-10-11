@@ -42,7 +42,7 @@
               <td>{{ dispositivo.nombre_comuna }}</td>
               <td>
                 {% if dispositivo.ruta_archivo %}
-                <img src="{{ url_for('static', filename=dispositivo.ruta_archivo) }}" alt="Foto del dispositivo">
+                <img src="{{ url_for('static', filename=dispositivo.ruta_archivo.replace('.', '120x120_.')) }}" alt="Foto del dispositivo">
                 {% else %}
                 <p>Sin imagen</p>
                 {% endif %}
