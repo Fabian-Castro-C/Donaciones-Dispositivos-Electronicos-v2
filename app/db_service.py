@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from flask import current_app
 from datetime import datetime
 import hashlib
+from PIL import Image
 
 
 def obtener_conexion():
@@ -33,12 +34,8 @@ def obtener_regiones():
         conexion.close()
 
 def insertar_donacion(contacto, dispositivos):
-    """
-    Inserta una donación en la base de datos.
-
-    :param contacto: Diccionario con los datos del contacto.
-    :param dispositivos: Lista de diccionarios, cada uno con los datos de un dispositivo y sus archivos.
-    """
+    """ Inserta una donación en la base de datos."""
+    
     conexion = obtener_conexion()
     try:
         cursor = conexion.cursor()
@@ -108,37 +105,65 @@ def insertar_donacion(contacto, dispositivos):
         cursor.close()
         conexion.close()
 
-def guardar_archivo(archivo, dispositivo_id):
-    """
-    Guarda un archivo en el servidor y devuelve la ruta y el nombre del archivo.
-    """
-    # Directorio base de subida de archivos
-    UPLOAD_FOLDER = os.path.join(current_app.root_path, 'static', 'uploads', f'dispositivo_{dispositivo_id}')
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Crear el directorio si no existe
-
-    # Crear el hash del archivo sin cargarlo todo en memoria
+def generar_hash_contenido(archivo):
+    """Genera un hash SHA-256 del contenido del archivo."""
     hasher = hashlib.sha256()
-    archivo.stream.seek(0)  # Asegurar que estamos al principio del archivo
+    archivo.stream.seek(0)  # Asegurarse de que estamos al principio del archivo
     while True:
         chunk = archivo.stream.read(8192)
         if not chunk:
             break
         hasher.update(chunk)
     archivo_hash = hasher.hexdigest()
+    archivo.stream.seek(0)  # Volver al inicio del archivo para poder usarlo luego
+    return archivo_hash
 
-    # Obtener la extensión del archivo original de manera segura
-    nombre_archivo = secure_filename(archivo.filename) # Nombre seguro del archivo
-    _, extension = os.path.splitext(nombre_archivo) 
-    # Crear el nuevo nombre de archivo con el hash y la extensión original
-    nombre_hasheado = f"{archivo_hash}{extension}"
+def guardar_archivo(archivo, dispositivo_id):
+    """ Guarda un archivo en el servidor y devuelve la ruta y el nombre original del archivo.
+    Crea versiones redimensionadas de la imagen en tamaños 1280x1024, 640x480 y 120x120."""
 
-    # Ruta completa del archivo
-    ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_hasheado)
+    # Directorio base de subida de archivos
+    UPLOAD_FOLDER = os.path.join(current_app.root_path, 'static', 'uploads', f'dispositivo_{dispositivo_id}')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Crear el directorio si no existe
 
-    # Guardar el archivo en el servidor
-    archivo.stream.seek(0)  # Volver al inicio para guardar el archivo
-    archivo.save(ruta_archivo)
+    # Asegurar un nombre de archivo seguro
+    nombre_archivo_original = secure_filename(archivo.filename)
 
-    # Devolver la ruta relativa desde 'static'
-    ruta_relativa = os.path.join('uploads', f'dispositivo_{dispositivo_id}', nombre_hasheado)
-    return ruta_relativa, nombre_archivo
+    # Obtener la extensión del archivo de manera segura
+    _, extension = os.path.splitext(nombre_archivo_original)
+    extension = extension.lower()
+    if extension not in ['.jpg', '.jpeg', '.png']:
+        raise ValueError('Tipo de archivo no permitido')
+
+    # Generar el hash del contenido del archivo para asegurar nombres únicos
+    archivo_hash = generar_hash_contenido(archivo)
+
+    # Crear un nombre de archivo basado en el hash del contenido
+    base_filename = f"{archivo_hash}{extension}"
+
+    # Ruta completa del archivo base (imagen original)
+    ruta_base = os.path.join(UPLOAD_FOLDER, base_filename)
+
+    # Leer el archivo en PIL Image
+    try:
+        image = Image.open(archivo.stream)
+    except IOError:
+        raise ValueError('El archivo subido no es una imagen válida')
+
+    # Guardar la imagen original
+    archivo.stream.seek(0)  # Volver al inicio para guardar el archivo original
+    archivo.save(ruta_base)
+
+    # Crear y guardar las imágenes redimensionadas
+    tamanos = [(1280, 1024), (640, 480), (120, 120)]
+    for ancho, alto in tamanos:
+        image_resized = image.copy()
+        image_resized.thumbnail((ancho, alto))
+        size_suffix = f"_{ancho}x{alto}"
+        filename_resized = base_filename.replace(extension, f"{size_suffix}{extension}")
+        ruta_resized = os.path.join(UPLOAD_FOLDER, filename_resized)
+        image_resized.save(ruta_resized)
+
+    # Devolver la ruta relativa base (incluyendo la extensión), y el nombre de archivo original
+    ruta_relativa_base = os.path.join('uploads', f'dispositivo_{dispositivo_id}', base_filename)
+    return ruta_relativa_base, nombre_archivo_original
