@@ -123,6 +123,46 @@ def ver_dispositivos():
         total_dispositivos = cursor.fetchone()['COUNT(*)']
         has_next = (page * per_page) < total_dispositivos
     
-    
+
 
     return render_template('ver-dispositivos.html', dispositivos=dispositivos, page=page, has_next=has_next)
+
+@app.route('/informacion_dispositivo/<int:dispositivo_id>')
+def informacion_dispositivo(dispositivo_id):
+    conexion = obtener_conexion()
+    
+    try:
+        with conexion.cursor() as cursor:
+            # Consulta para obtener la información del dispositivo
+            dispositivo_query = """
+                SELECT d.id, d.nombre, d.descripcion, d.tipo, d.anos_uso, d.estado, 
+                       c.nombre AS nombre_donante, c.email, c.celular, comuna.nombre AS comuna, 
+                       region.nombre AS region 
+                FROM dispositivo d
+                JOIN contacto c ON d.contacto_id = c.id
+                JOIN comuna ON c.comuna_id = comuna.id
+                JOIN region ON comuna.region_id = region.id
+                WHERE d.id = %s
+            """
+            cursor.execute(dispositivo_query, (dispositivo_id,))
+            dispositivo = cursor.fetchone()
+
+            # Consulta para obtener las fotos del dispositivo
+            fotos_query = "SELECT ruta_archivo, nombre_archivo FROM archivo WHERE dispositivo_id = %s"
+            cursor.execute(fotos_query, (dispositivo_id,))
+            fotos = cursor.fetchall()
+
+        # Verificamos si existe el dispositivo
+        if not dispositivo:
+            return "Dispositivo no encontrado", 404
+        
+
+        # Renderizamos la página con la información del dispositivo
+        return render_template('informacion-dispositivo.html', dispositivo=dispositivo, fotos=fotos)
+    
+    except Exception as e:
+        print(f"Error al obtener la información del dispositivo: {e}")
+        return "Error al obtener la información del dispositivo", 500
+    
+    finally:
+        conexion.close()

@@ -35,7 +35,7 @@
           <tbody id="deviceTableBody">
             <!-- Se insertarán las filas dinámicamente usando Jinja -->
             {% for dispositivo in dispositivos %}
-            <tr onclick="window.location.href='{{ url_for('ver_dispositivos', id=dispositivo.id) }}'">
+            <tr onclick="window.location.href='{{ url_for('informacion_dispositivo', dispositivo_id=dispositivo.id) }}'">
               <td>{{ dispositivo.tipo.upper() }}</td>
               <td>{{ dispositivo.nombre_dispositivo.title() }}</td>
               <td>{{ dispositivo.estado.capitalize() }}</td>

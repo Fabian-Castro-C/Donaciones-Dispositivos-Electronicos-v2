@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Información del Dispositivo</title>
+  <!-- Cargar el CSS de forma dinámica con Flask -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/informacion-dispositivo.css') }}">
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('index') }}">Inicio</a></li>
+        <li><a href="{{ url_for('agregar_donacion') }}">Agregar Donación</a></li>
+        <li><a href="{{ url_for('ver_dispositivos') }}">Ver Dispositivos</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <h1>Información del Dispositivo</h1>
+
+    <!-- Información del dispositivo -->
+    <section id="deviceInfo">
+      <h2>Detalles del Dispositivo</h2>
+      <p><strong>Nombre:</strong> {{ dispositivo.nombre }}</p>
+      <p><strong>Tipo:</strong> {{ dispositivo.tipo.capitalize() }}</p>
+      <p><strong>Descripción:</strong> {{ dispositivo.descripcion }}</p>
+      <p><strong>Años de Uso:</strong> {{ dispositivo.anos_uso }}</p>
+      <p><strong>Estado:</strong> {{ dispositivo.estado.capitalize() }}</p>
+
+      <div id="devicePhotos">
+        <h3>Fotos del Dispositivo</h3>
+        {% if fotos %}
+          {% for foto in fotos %}
+            <img src="{{ url_for('static', filename=foto.ruta_archivo) }}" alt="Foto del dispositivo {{ dispositivo.nombre }}" class="device-photo">
+          {% endfor %}
+        {% else %}
+          <p>No hay fotos disponibles para este dispositivo.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Información del donante -->
+    <section id="donor-info">
+      <h2>Información del Donante</h2>
+      <p><strong>Nombre:</strong> {{ dispositivo.nombre_donante }}</p>
+      <p><strong>Email:</strong> {{ dispositivo.email }}</p>
+      <p><strong>Teléfono:</strong> {{ dispositivo.celular }}</p>
+      <p><strong>Región:</strong> {{ dispositivo.region }}</p>
+      <p><strong>Comuna:</strong> {{ dispositivo.comuna }}</p>
+    </section>
+
+    <!-- Comentarios manejados por JavaScript -->
+    <section id="comments">
+      <h2>Comentarios</h2>
+      <ul id="commentsList">
+        <!-- Los comentarios se agregarán aquí dinámicamente con JavaScript -->
+      </ul>
+      <h3>Agregar Comentario</h3>
+      <form id="commentForm" novalidate>
+        <label for="commenterName">Nombre:</label>
+        <input type="text" id="commenterName" name="commenterName" required minlength="3" maxlength="80">
+        <label for="commentText">Comentario:</label>
+        <textarea id="commentText" name="commentText" rows="4" cols="50" required minlength="5"></textarea>
+        <button type="submit">Agregar comentario</button>
+      </form>
+    </section>
+
+    <!-- Modal para la imagen (JS maneja el modal, aquí solo es un contenedor) -->
+    <div id="imageModal" class="modal">
+      <span class="close">&times;</span>
+      <!-- La imagen será añadida dinámicamente aquí -->
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Donaciones de dispositivos electrónicos</p>
+  </footer>
+
+  <!-- Cargar el JavaScript de forma dinámica con Flask -->
+  <script src="{{ url_for('static', filename='js/infoDevice.js') }}" defer></script>
+</body>
+</html>
