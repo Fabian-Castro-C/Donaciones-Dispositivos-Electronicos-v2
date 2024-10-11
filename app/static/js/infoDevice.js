@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Añadir evento de clic a cada imagen
     images.forEach(image => {
         image.addEventListener('click', () => {
-            createImageForModal(image.src.replace('640x480_.', '1280x1024_.'));
+            createImageForModal(image.src.replace('_640x480.', '_1280x1024.'));
             imageModal.style.display = 'flex';
         });
     });   

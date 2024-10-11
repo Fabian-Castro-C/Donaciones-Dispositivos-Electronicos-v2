@@ -183,7 +183,7 @@ def guardar_archivo(archivo, dispositivo_id):
         image_resized = image_cropped.resize((ancho, alto), Image.LANCZOS)
 
    # Guardar la imagen redimensionada
-        size_suffix = f"{ancho}x{alto}_"
+        size_suffix = f"_{ancho}x{alto}"
         filename_resized = base_filename.replace(extension, f"{size_suffix}{extension}")
         ruta_resized = os.path.join(UPLOAD_FOLDER, filename_resized)
         image_resized.save(ruta_resized)

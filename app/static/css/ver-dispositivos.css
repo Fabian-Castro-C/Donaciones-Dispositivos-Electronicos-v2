@@ -128,7 +128,6 @@ td img {
 .pagination .button[disabled] {
   background-color: #cccccc;  /* Color más apagado */
   color: #6e6e6e;             /* Texto gris */
-  cursor: not-allowed;        /* Cursor bloqueado */
   border: 1px solid #999999;  /* Bordes oscuros */
   opacity: 0.7;               /* Transparencia */
 }
