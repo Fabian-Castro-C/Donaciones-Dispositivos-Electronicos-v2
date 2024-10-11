@@ -94,45 +94,81 @@ strong {
   transform: scale(1.02);
 }
 
-/* Estilo para el modal */
+/* Modal Styles */
 .modal {
-  display: none; /* Oculto por defecto */
+  display: none; /* Ocultar por defecto */
   position: fixed;
-  z-index: 1;
+  z-index: 1000;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.4); /* Fondo semi-transparente */
-  justify-content: center;
-  align-items: center;
+  width: 100vw; /* Ocupar todo el ancho de la ventana */
+  height: 100vh; /* Ocupar todo el alto de la ventana */
+  background-color: rgba(0,0,0,0.4); /* Semi-transparent background */
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
 }
+
+/* Clase para mostrar y centrar el modal */
+.modal.show {
+  display: flex; /* Mostrar como flex */
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
+}
+
 
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto;
+  margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 1280px;
-  height: 1024px;
-  object-fit: cover;
-  justify-content: center;
-  display:flex;
+  position: relative; /* Asegura que los elementos hijos con posición absoluta se posicionen relativamente a este contenedor */
 }
 
+.closeContainer {
+  position: relative; /* Asegura que los elementos hijos con posición absoluta se posicionen relativamente a este contenedor */
+  display: inline-block; /* Ajusta el tamaño del contenedor al tamaño de su contenido */
+}
+
+/* Close Button Styles */
 .close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
+  color: black;
+  z-index: 1001;
+  background-color: white;
+  border: 2px solid grey;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
   font-weight: bold;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
 .close:hover,
 .close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+  transform: scale(1.5);
+}
+
+/* Estilo para el contenedor de la imagen dentro del modal */
+#modalImageContainer {
+  display: flex; /* Usar Flexbox */
+  padding: 10px;
+  text-align: center;
+}
+
+/* Estilo para la imagen dentro del modal */
+#modalImageContainer img.modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 30px;
 }
 
 /* Formulario de comentarios */
@@ -205,3 +241,4 @@ footer {
   margin-top: 30px;
   font-size: 1em;
 }
+

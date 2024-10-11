@@ -78,26 +78,29 @@ table {
 
 th, td {
   padding: 10px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd;
   word-wrap: break-word; /* Permite que el contenido se ajuste dentro de la celda */
 }
 
 th {
+  text-align: center;
   background-color: #2572df;
   color: white;
 }
 
-tr:hover {
+tbody tr:hover {
   background-color: #f5f5f5;
+  cursor: pointer;
 }
 
 td img {
-  max-width: 120px;
-  max-height: 120px;
+  margin-left: auto;
+  margin-right: auto;
   display: block;
-  width: auto; /* Asegura que la imagen mantenga su proporción */
-  height: auto; /* Asegura que la imagen mantenga su proporción */
+  border-radius: 10px;
 }
 
 /* Pie de página */
