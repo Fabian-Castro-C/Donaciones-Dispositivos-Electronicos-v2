@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, abort
 from app import app
 from app.db_service import obtener_regiones, obtener_conexion, insertar_donacion
 from app.validations import get_contact, get_deviceEntry, validate_contact, validate_deviceEntry
@@ -85,43 +85,51 @@ def ver_dispositivos():
     per_page = 5  # Número de dispositivos por página
     offset = (page - 1) * per_page
 
-    # Consulta para obtener dispositivos y una sola imagen (la primera) con paginación
-    dispositivos_query = """
-        SELECT
-            d.id,
-            d.tipo,
-            d.nombre AS nombre_dispositivo,
-            d.estado,
-            c.nombre AS nombre_comuna,
-            a.ruta_archivo,
-            a.nombre_archivo
-        FROM dispositivo d
-        JOIN contacto ct ON d.contacto_id = ct.id
-        JOIN comuna c ON ct.comuna_id = c.id
-        LEFT JOIN (
-            SELECT dispositivo_id, ruta_archivo, nombre_archivo
-            FROM archivo
-            WHERE id IN (
-                SELECT MIN(id)
-                FROM archivo
-                GROUP BY dispositivo_id
-            )
-        ) a ON d.id = a.dispositivo_id
-        ORDER BY d.id
-        LIMIT %s OFFSET %s;
-    """
     conexion = obtener_conexion()
-
     with conexion.cursor() as cursor:
+        # Obtener el número total de dispositivos
+        sql = "SELECT COUNT(*) AS total FROM dispositivo"
+        cursor.execute(sql)
+        total_dispositivos = cursor.fetchone()['total']
+
+        # Calcular el número total de páginas
+        total_pages = (total_dispositivos + per_page - 1) // per_page  # Redondeo hacia arriba
+
+        # Verificar si la página solicitada es válida
+        if page > total_pages or page < 1:
+            # Redirigir a la última página si la página es demasiado grande
+            return abort(404)
+
+        # Consulta para obtener dispositivos y una sola imagen (la primera) con paginación
+        dispositivos_query = """
+            SELECT
+                d.id,
+                d.tipo,
+                d.nombre AS nombre_dispositivo,
+                d.estado,
+                c.nombre AS nombre_comuna,
+                a.ruta_archivo,
+                a.nombre_archivo
+            FROM dispositivo d
+            JOIN contacto ct ON d.contacto_id = ct.id
+            JOIN comuna c ON ct.comuna_id = c.id
+            LEFT JOIN (
+                SELECT dispositivo_id, ruta_archivo, nombre_archivo
+                FROM archivo
+                WHERE id IN (
+                    SELECT MIN(id)
+                    FROM archivo
+                    GROUP BY dispositivo_id
+                )
+            ) a ON d.id = a.dispositivo_id
+            ORDER BY d.id
+            LIMIT %s OFFSET %s;
+        """
         cursor.execute(dispositivos_query, (per_page, offset))
         dispositivos = cursor.fetchall()
-        print(dispositivos)
 
         # Verificar si hay más dispositivos después de la página actual
-        sql = "SELECT COUNT(*) FROM dispositivo"
-        cursor.execute(sql)
-        total_dispositivos = cursor.fetchone()['COUNT(*)']
-        has_next = (page * per_page) < total_dispositivos
+        has_next = page < total_pages
 
     return render_template('ver-dispositivos.html', dispositivos=dispositivos, page=page, has_next=has_next)
 
@@ -150,12 +158,6 @@ def informacion_dispositivo(dispositivo_id):
             cursor.execute(fotos_query, (dispositivo_id,))
             fotos = cursor.fetchall()
 
-        # Verificamos si existe el dispositivo
-        if not dispositivo:
-            return "Dispositivo no encontrado", 404
-
-        # Renderizamos la página con la información del dispositivo
-        return render_template('informacion-dispositivo.html', dispositivo=dispositivo, fotos=fotos)
     
     except Exception as e:
         print(f"Error al obtener la información del dispositivo: {e}")
@@ -163,3 +165,10 @@ def informacion_dispositivo(dispositivo_id):
     
     finally:
         conexion.close()
+
+    # Verificamos si existe el dispositivo
+    if not dispositivo:
+        return abort(404)
+    
+    # Renderizamos la página con la información del dispositivo
+    return render_template('informacion-dispositivo.html', dispositivo=dispositivo, fotos=fotos)
