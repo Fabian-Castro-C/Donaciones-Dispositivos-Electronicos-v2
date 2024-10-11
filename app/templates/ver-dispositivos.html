@@ -58,15 +58,15 @@
         {% if page > 1 %}
         <a href="{{ url_for('ver_dispositivos', page=page-1) }}" class="button">Anterior</a>
         {% else %}
-        <a class="button" disabled>Anterior</a>
+        <span class="button disabled" tabindex="-1" aria-disabled="true">Anterior</span>
         {% endif %}
-      
+    
         <span class="current-page">Página {{ page }}</span>
-      
+    
         {% if has_next %}
         <a href="{{ url_for('ver_dispositivos', page=page+1) }}" class="button">Siguiente</a>
         {% else %}
-        <a class="button" disabled>Siguiente</a>
+        <span class="button disabled" tabindex="-1" aria-disabled="true">Siguiente</span>
         {% endif %}
       </div>
     </main>

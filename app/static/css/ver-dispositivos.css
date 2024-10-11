@@ -53,10 +53,10 @@ nav ul li a:hover {
 
 /* Contenedor centrado */
 .container {
-  width: 100%; /* Asegura que el contenedor ocupe todo el ancho disponible */
+  width: 100%;
   margin: 0 auto;
   padding: 20px;
-  overflow-x: auto; /* Permite el desplazamiento horizontal si el contenido es más ancho que el contenedor */
+  overflow-x: auto; /* Permite desplazamiento horizontal si el contenido lo requiere */
 }
 
 /* Sección principal */
@@ -70,10 +70,10 @@ section {
 
 /* Estilos de la tabla */
 table {
-  width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+  width: 100%; /* Tabla ocupa todo el ancho */
   border-collapse: collapse;
   margin: 20px 0;
-  table-layout: auto; /* Asegura que las columnas se ajusten al contenido */
+  table-layout: auto;
 }
 
 th, td {
@@ -82,11 +82,10 @@ th, td {
   border-bottom: 1px solid #ddd;
   border-right: 1px solid #ddd;
   border-left: 1px solid #ddd;
-  word-wrap: break-word; /* Permite que el contenido se ajuste dentro de la celda */
+  word-wrap: break-word;
 }
 
 th {
-  text-align: center;
   background-color: #2572df;
   color: white;
 }
@@ -97,12 +96,12 @@ tbody tr:hover {
 }
 
 td img {
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   display: block;
   border-radius: 10px;
 }
 
+/* Estilos para la paginación */
 .pagination {
   display: flex;
   justify-content: center;
@@ -123,18 +122,18 @@ td img {
   background-color: #1b59b5;
 }
 
-/* Estilos para botón deshabilitado */
-.pagination .button:disabled,
-.pagination .button[disabled] {
-  background-color: #cccccc;  /* Color más apagado */
-  color: #6e6e6e;             /* Texto gris */
-  border: 1px solid #999999;  /* Bordes oscuros */
-  opacity: 0.7;               /* Transparencia */
+/* Estilos para el botón deshabilitado */
+.pagination .button.disabled {
+  pointer-events: none;
+  background-color: #cccccc;
+  color: #6e6e6e;
+  border: 1px solid #999999;
+  opacity: 0.7;
+  cursor: default;
 }
 
-.pagination .button:disabled:hover,
-.pagination .button[disabled]:hover {
-  background-color: #cccccc;  /* No cambiar al pasar el mouse */
+.pagination .button.disabled:hover {
+  background-color: #cccccc;
 }
 
 .pagination .current-page {
@@ -145,7 +144,6 @@ td img {
   border-radius: 5px;
   pointer-events: none;
 }
-
 
 /* Pie de página */
 footer {
