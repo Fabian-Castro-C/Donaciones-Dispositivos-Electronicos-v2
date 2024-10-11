@@ -57,12 +57,18 @@
       <div class="pagination">
         {% if page > 1 %}
         <a href="{{ url_for('ver_dispositivos', page=page-1) }}" class="button">Anterior</a>
+        {% else %}
+        <a class="button" disabled>Anterior</a>
         {% endif %}
+      
+        <span class="current-page">Página {{ page }}</span>
       
         {% if has_next %}
         <a href="{{ url_for('ver_dispositivos', page=page+1) }}" class="button">Siguiente</a>
+        {% else %}
+        <a class="button" disabled>Siguiente</a>
         {% endif %}
-      </div>      
+      </div>
     </main>
   </div>
 

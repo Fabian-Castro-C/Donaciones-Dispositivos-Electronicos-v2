@@ -103,6 +103,51 @@ td img {
   border-radius: 10px;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination .button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #2572df;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination .button:hover {
+  background-color: #1b59b5;
+}
+
+/* Estilos para botón deshabilitado */
+.pagination .button:disabled,
+.pagination .button[disabled] {
+  background-color: #cccccc;  /* Color más apagado */
+  color: #6e6e6e;             /* Texto gris */
+  cursor: not-allowed;        /* Cursor bloqueado */
+  border: 1px solid #999999;  /* Bordes oscuros */
+  opacity: 0.7;               /* Transparencia */
+}
+
+.pagination .button:disabled:hover,
+.pagination .button[disabled]:hover {
+  background-color: #cccccc;  /* No cambiar al pasar el mouse */
+}
+
+.pagination .current-page {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #eeeeee;
+  color: #333;
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+
 /* Pie de página */
 footer {
   text-align: center;
