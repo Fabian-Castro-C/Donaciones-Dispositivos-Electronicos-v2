@@ -142,6 +142,25 @@ El sistema permite agregar una donación de dispositivos a través de un formula
   - **Imágenes** (que se pueden expandir)
 - Se muestra también la información del donante, como el nombre, correo electrónico y región.
 
+#### Comentarios
+
+Se ha implementado un sistema de comentarios para cada dispositivo donado, con las siguientes características:
+
+- **Integración de Validaciones del Servidor**:
+  - Se añadió un sistema de validaciones en el servidor para los comentarios, que verifica:
+    - El nombre del comentarista tiene entre 3 y 80 caracteres.
+    - El texto del comentario tiene entre 5 y 300 caracteres.
+    - Se valida que el `dispositivo_id` sea válido.
+  - Las respuestas del servidor incluyen mensajes de error detallados que el frontend puede manejar fácilmente.
+
+- **Prevención de Spam**:
+  - Se implementó una restricción de tiempo que previene que un mismo usuario publique comentarios demasiado rápido en un dispositivo (30 segundos entre comentarios).
+  - Si un usuario intenta enviar un comentario dentro de este intervalo, se devuelve un código de estado `429 (Too Many Requests)`.
+
+- **Carga Dinámica de Comentarios**:
+  - Se añadió una funcionalidad para cargar comentarios de manera progresiva, mostrando los primeros 4 comentarios y cargando más en grupos de 4 al hacer clic en el botón "Mostrar más comentarios".
+  - El botón "Mostrar más comentarios" se oculta automáticamente cuando no hay más comentarios que cargar.
+
 ---
 
 ### Seguridad
@@ -156,6 +175,10 @@ Se implementaron varias consideraciones de seguridad en la aplicación:
 
 4. **Paginación segura**: Se valida que las páginas solicitadas en la vista de dispositivos existan, y en caso de un número de página fuera de rango, se lanza un error 404.
 
+5. **Prevención de Spam en Comentarios**:
+   - Restricción de tiempo entre publicaciones de comentarios para evitar el spam.
+   - Respuestas adecuadas (`429 Too Many Requests`) cuando se excede el límite.
+
 ---
 
 ### Estilos y Usabilidad
@@ -164,8 +187,46 @@ Se implementaron varias consideraciones de seguridad en la aplicación:
 
 2. **Estilo de paginación**: Los botones de paginación fueron diseñados de forma clara, mostrando cuándo una página no está disponible (deshabilitada) y resaltando la página actual.
 
+3. **Mejoras en el Diseño del Botón de Comentarios**:
+   - El botón "Mostrar más comentarios" se estilizó para que tenga un diseño coherente con el botón del formulario de comentarios.
+   - Se añadió un `margin-bottom` al botón para evitar que esté demasiado cerca del texto "Agregar Comentario".
+
 ---
 
 ### Consideraciones Adicionales
 
-- **Comentarios**: Aunque se incluyeron en la interfaz, los comentarios aún no se manejan en el servidor en esta versión del proyecto por indicaciones de la tarea. Actualmente, son gestionados en el cliente usando JavaScript, sin persistencia en la base de datos.
+- **Comentarios**: Aunque se incluyeron en la interfaz, los comentarios ahora son manejados de manera más robusta con validaciones en el servidor y prevención de spam. Sin embargo, en esta versión del proyecto, los comentarios aún no se almacenan de forma persistente en la base de datos, siguiendo las indicaciones de la tarea. Actualmente, son gestionados en el cliente usando JavaScript, sin persistencia en el servidor.
+
+---
+
+### Instrucciones de Uso
+
+- **Carga de Comentarios**: Los comentarios se cargan inicialmente en grupos de 4 y se pueden cargar más comentarios haciendo clic en el botón "Mostrar más comentarios".
+- **Optimización de la Carga**: La carga progresiva mejora la experiencia del usuario al evitar la carga de todos los comentarios de una sola vez.
+
+---
+
+### Actualización del Código JavaScript
+
+Se realizaron las siguientes modificaciones en el código JavaScript para mejorar la funcionalidad de los comentarios:
+
+- **Envío de Comentarios**:
+  - Se modificó el JavaScript para enviar comentarios al servidor usando `fetch` con solicitudes `POST`.
+  - Se maneja la respuesta del servidor para mostrar mensajes de éxito o errores específicos en el formulario.
+  - Se añadió un retraso de 1.5 segundos antes de recargar la página para dar tiempo al usuario de ver el mensaje de éxito.
+  - Se obtiene el `device_id` directamente desde un atributo `data-device-id` en el formulario HTML, lo que simplifica el manejo de la información.
+
+- **Carga Dinámica de Comentarios**:
+  - Se agregó una función para cargar comentarios de forma dinámica en grupos de 4, haciendo uso de `fetch` para obtener más comentarios sin recargar la página.
+
+---
+
+### Actualización de la Ruta en Flask
+
+Se realizaron las siguientes actualizaciones en las rutas de Flask para soportar la nueva funcionalidad de comentarios:
+
+- **Ruta `informacion_dispositivo`**:
+  - Optimizada para cargar solo los primeros 4 comentarios inicialmente.
+
+- **Nueva Ruta `/get_comments`**:
+  - Creada para manejar la carga paginada de comentarios, permitiendo la carga de comentarios adicionales de manera eficiente.
