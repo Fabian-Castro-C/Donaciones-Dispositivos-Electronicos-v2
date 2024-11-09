@@ -212,25 +212,40 @@ strong {
 #commentsList {
   margin-top: 20px;
   list-style: none;
+  padding: 0; /* Eliminar el padding para que los comentarios estén alineados */
 }
 
 #commentsList li {
   padding: 15px;
   margin-bottom: 15px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9; /* Cambiar a un tono gris claro para más contraste */
+  border-radius: 8px; /* Hacer las esquinas más redondeadas */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Aumentar la sombra para un efecto más definido */
+  border: 1px solid #e0e0e0; /* Agregar un borde sutil para más definición */
 }
 
 #commentsList li strong {
   display: block;
+  font-size: 14px; /* Reducir el tamaño de la fuente para el nombre */
+  font-weight: bold;
+  color: #333; /* Cambiar el color a un tono gris oscuro */
   margin-bottom: 5px;
 }
 
-#commentsList li p {
-  margin-top: 5px;
-  line-height: 1.5;
+#commentsList li span {
+  font-size: 12px; /* Tamaño de fuente más pequeño para la fecha */
+  color: #777; /* Color gris claro para la fecha */
+  display: block;
+  margin-bottom: 10px;
 }
+
+#commentsList li p {
+  margin: 0; /* Eliminar margen superior e inferior */
+  font-size: 14px; /* Tamaño de fuente ligeramente más grande para el texto */
+  line-height: 1.6;
+  color: #555; /* Cambiar el color a un tono gris intermedio */
+}
+
 
 /* Pie de página */
 footer {
