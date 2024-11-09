@@ -8,6 +8,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const images = document.querySelectorAll('.device-photo'); 
 
     const device_id = commentForm.getAttribute('data-device-id');
+    const loadMoreButton = document.getElementById('loadMoreButton');
+    let currentPage = 2; // Empezamos desde la página 2 porque la 1 ya está cargada
+
+    // Manejar la carga de más comentarios
+    loadMoreButton.addEventListener('click', () => {
+      fetch(`/get_comments/${device_id}/${currentPage}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          const comentarios = data.comentarios;
+
+          // Añadir los comentarios a la lista
+          comentarios.forEach(comentario => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <strong>${comentario.nombre}</strong>
+              <span>${new Date(comentario.fecha).toLocaleString()}</span>
+              <p>${comentario.texto}</p>
+            `;
+            commentsList.appendChild(li);
+          });
+
+          // Incrementar la página actual
+          currentPage++;
+
+          //Si no hay más comentarios, ocultar el botón
+          if (comentarios.length < 4) {
+            loadMoreButton.style.display = 'none';
+          }
+        } else{
+          console.error("Error al cargar más comentarios:", data.message);
+        }
+      })
+      .catch(error => {
+        console.error("Error al enviar la solicitud:", error);
+      });
+    });
+
   
     // Crear y añadir la imagen al modal
     function createImageForModal(imageSrc) {
