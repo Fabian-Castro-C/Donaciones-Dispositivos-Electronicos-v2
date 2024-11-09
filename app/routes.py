@@ -216,7 +216,7 @@ def add_comment():
             if last_comment:
                 last_comment_time = last_comment['fecha']
                 if datetime.now() - last_comment_time < COMMENT_LIMIT_INTERVAL:
-                    errors.append("Por favor, espere antes de agregar otro comentario.")
+                    errors.append("{campo: 'commentForm' error: 'Por favor, espere antes de agregar otro comentario.'}")
             
             # Si se detecta spam, devolvemos un error
             if errors:
