@@ -277,3 +277,23 @@ def add_comment():
         conexion.close()
 
     return jsonify({'status': 'success', 'message': 'Comentario agregado exitosamente.'}), 201
+
+@app.route('/datos_dispositivos', methods=['GET'])
+def datos_dispositivos():
+    conexion = obtener_conexion()
+    try:
+        with conexion.cursor() as cursor:
+            # Obtener el número total de dispositivos por tipo
+            cursor.execute("""
+                SELECT tipo, COUNT(*) AS total
+                FROM dispositivo
+                GROUP BY tipo
+            """)
+            datos_dispositivos = cursor.fetchall()
+    except Exception as e:
+        print(f"Error al obtener datos de dispositivos: {e}")
+        return jsonify({'status': 'error', 'message': 'Error al obtener datos de dispositivos.'}), 500
+    finally:
+        conexion.close()
+
+    return jsonify({'status': 'success', 'datos': datos_dispositivos})
