@@ -297,3 +297,24 @@ def datos_dispositivos():
         conexion.close()
 
     return jsonify({'status': 'success', 'datos': datos_dispositivos})
+
+@app.route('/datos_contactos', methods=['GET'])
+def datos_contactos():
+    conexion = obtener_conexion()
+    try:
+        with conexion.cursor() as cursor:
+            # Obtener el número total de contactos por comuna
+            cursor.execute("""
+                SELECT comuna.nombre AS comuna, COUNT(*) AS total
+                FROM contacto
+                JOIN comuna ON contacto.comuna_id = comuna.id
+                GROUP BY comuna.nombre
+            """)
+            datos_contactos = cursor.fetchall()
+    except Exception as e:
+        print(f"Error al obtener datos de contactos: {e}")
+        return jsonify({'status': 'error', 'message': 'Error al obtener datos de contactos.'}), 500
+    finally:
+        conexion.close()
+
+    return jsonify({'status': 'success', 'datos': datos_contactos})
