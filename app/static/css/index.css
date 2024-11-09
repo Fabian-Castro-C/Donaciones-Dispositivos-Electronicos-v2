@@ -70,22 +70,40 @@
     margin-bottom: 15px;
     font-size: 1.5em;
     color: #2572df;
+    text-align: center;
   }
   
   main p {
     font-size: 1.1em;
   }
   
-  /* Pie de página */
-  footer {
-    text-align: center;
-    margin-top: 30px;
-    color: #777;
-    padding: 10px;
-    background-color: #f1f1f1;
-    border-top: 1px solid #ddd;
-  }
-  
+  /* Sección de gráficos */
+main section h3 {
+  font-size: 1.3em;
+  margin-top: 20px;
+  color: #2572df;
+}
+
+main section p {
+  margin-bottom: 20px; /* Espacio adicional debajo del texto */
+}
+
+#graficoDispositivos, #graficoContactos {
+  margin-top: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajuste del pie de página para que no quede flotando */
+footer {
+  text-align: center;
+  margin-top: 50px;
+  color: #777;
+  padding: 15px;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+}
   footer p {
     font-size: 1em;
   }
