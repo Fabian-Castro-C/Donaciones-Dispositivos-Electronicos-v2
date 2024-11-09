@@ -58,7 +58,7 @@
         <!-- Los comentarios se agregarán aquí dinámicamente con JavaScript -->
       </ul>
       <h3>Agregar Comentario</h3>
-      <form id="commentForm" novalidate>
+      <form id="commentForm" data-device-id="{{ dispositivo.id }}" novalidate>
         <label for="commenterName">Nombre:</label>
         <input type="text" id="commenterName" name="commenterName" required minlength="3" maxlength="80">
         <label for="commentText">Comentario:</label>
