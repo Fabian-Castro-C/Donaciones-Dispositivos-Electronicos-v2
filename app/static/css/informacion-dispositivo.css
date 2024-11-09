@@ -61,6 +61,13 @@ section {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
 section h2 {
   font-size: 1.5em;
   margin-bottom: 15px;
@@ -244,6 +251,26 @@ strong {
   font-size: 14px; /* Tamaño de fuente ligeramente más grande para el texto */
   line-height: 1.6;
   color: #555; /* Cambiar el color a un tono gris intermedio */
+}
+
+#loadMoreButton {
+  display: block; /* Asegura que el botón se muestre como un bloque para ocupar todo el ancho */
+  width: 100%; /* Ocupa todo el ancho disponible */
+  background-color: #2572df; /* Mismo color de fondo que el botón del formulario */
+  color: #fff; /* Texto blanco */
+  padding: 10px 15px; /* Espaciado interno */
+  border: none; /* Sin borde */
+  border-radius: 5px; /* Bordes redondeados */
+  font-size: 1.1em; /* Tamaño de fuente */
+  cursor: pointer; /* Cambia el cursor a un puntero */
+  text-align: center; /* Centra el texto */
+  transition: background-color 0.3s ease; /* Transición suave para el cambio de color */
+  margin-top: 20px; /* Espacio superior */
+  margin-bottom: 20px; /* Espacio inferior */
+}
+
+#loadMoreButton:hover {
+  background-color: #0056a0; /* Color de fondo más oscuro al pasar el mouse */
 }
 
 
