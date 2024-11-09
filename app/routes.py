@@ -191,11 +191,11 @@ def add_comment():
 
     # Validaciones de longitud
     if not (3 <= len(nombre) <= 80):
-        errors.append("El nombre debe tener entre 3 y 80 caracteres.")
-    if len(texto) < 5 or len(texto) > 300:
-        errors.append("El comentario debe tener entre 5 y 300 caracteres.")
+        errors.append("{campo: 'commenterName', error: 'El nombre debe tener entre 3 y 80 caracteres.'}")
+    if not (5 <= len(texto) <= 300):
+        errors.append("{campo: 'commentText', error: 'El comentario debe tener entre 5 y 300 caracteres.'}")
     if not dispositivo_id:
-        errors.append("ID de dispositivo inválido.")
+        errors.append("{campo: 'commentForm', error: 'ID de dispositivo inválido.'}")
 
     # Si hay errores, los devolvemos
     if errors:
