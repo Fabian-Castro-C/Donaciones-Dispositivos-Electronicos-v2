@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageModal = document.getElementById('imageModal');
     const closeModal = document.getElementById('closeModal');
     const images = document.querySelectorAll('.device-photo'); 
+
+    const device_id = commentForm.getAttribute('data-device-id');
   
     // Crear y añadir la imagen al modal
     function createImageForModal(imageSrc) {
@@ -72,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
       // Validar texto del comentario
       const text = commentText.value.trim();
-      if (text.length < 5) {
-        showFieldMessage('commentText', 'El comentario debe tener al menos 5 caracteres.', 'error');
+      if (text.length < 5 || text.length > 300) {
+        showFieldMessage('commentText', 'El comentario debe tener entre 5 y 300 caracteres.', 'error');
         isValid = false;
       }
   
@@ -91,14 +93,42 @@ document.addEventListener('DOMContentLoaded', () => {
     commentForm.addEventListener('submit', (event) => {
       event.preventDefault();
       if (validateCommentForm()) {
+        // Preparamos los datos para enviar
         const newComment = {
           nombre: commenterName.value.trim(),
-          fecha: new Date().toLocaleDateString(), // Fecha actual
-          contenido: commentText.value.trim()
+          texto: commentText.value.trim(),
+          dispositivo_id: device_id
         };
-        addCommentToList(newComment);
-        showFieldMessage('commentForm', 'Comentario agregado exitosamente.', 'success');
-        commentForm.reset(); // Limpiar el formulario
+
+        // Realizar la solicitud al servidor
+        fetch('/add_comment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newComment)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            showFieldMessage('commentForm', 'Comentario agregado exitosamente.', 'success');
+            commentForm.reset();
+            // Recargar la pagina para mostrar el nuevo comentario
+            setTimeout(() => {
+              location.reload();
+            }, 1500);
+          } else if (data.errors) {
+            data.errors.forEach(error => {
+              showFieldMessage(error.campo, error.message, 'error');
+            });
+          } else {
+            showFieldMessage('commentForm', 'Error al agregar el comentario. Inténtelo de nuevo.', 'error');
+          }
+        })
+        .catch(error => {
+          console.error("Error al enviar el comentario:", error);
+          showFieldMessage('commentForm', 'Error al agregar el comentario. Inténtelo de nuevo.', 'error');
+        })
       }
     });
   
