@@ -2,6 +2,7 @@ from flask import render_template, request, jsonify, abort
 from app import app
 from app.db_service import obtener_regiones, obtener_conexion, insertar_donacion
 from app.validations import get_contact, get_deviceEntry, validate_contact, validate_deviceEntry
+from datetime import datetime, timedelta
 
 @app.route('/', methods=['GET'])
 def index():
@@ -171,3 +172,67 @@ def informacion_dispositivo(dispositivo_id):
     
     # Renderizamos la página con la información del dispositivo
     return render_template('informacion-dispositivo.html', dispositivo=dispositivo, fotos=fotos)
+
+@app.route('/add_comment', methods=['POST'])
+def add_comment():
+    data = request.get_json()
+    errors = []
+
+    MAX_LENGTH_COMMENTS = 300
+    MIN_LENGTH_COMMENTS = 5
+    COMMENT_LIMIT_INTERVAL = timedelta(seconds=30)
+    MAX_LENGTH_USERNAME = 80
+    MIN_LENGTH_USERNAME = 3
+
+    # Obtenemos y validamos los datos del comentario
+    nombre = data.get('nombre', '').strip()
+    texto = data.get('texto', '').strip()
+    dispositivo_id = data.get('dispositivo_id')
+
+    # Validaciones de longitud
+    if not (3 <= len(nombre) <= 80):
+        errors.append("El nombre debe tener entre 3 y 80 caracteres.")
+    if len(texto) < 5 or len(texto) > 300:
+        errors.append("El comentario debe tener entre 5 y 300 caracteres.")
+    if not dispositivo_id:
+        errors.append("ID de dispositivo inválido.")
+
+    # Si hay errores, los devolvemos
+    if errors:
+        return jsonify({'status': 'error', 'errors': errors}), 400
+
+    # Verificar frecuencia de comentarios (prevenir spam)
+    conexion = obtener_conexion()
+    try:
+        with conexion.cursor() as cursor:
+            # Comprobamos la fecha del último comentario del mismo nombre y dispositivo
+            cursor.execute(
+                "SELECT fecha FROM comentario WHERE nombre = %s AND dispositivo_id = %s ORDER BY fecha DESC LIMIT 1",
+                (nombre, dispositivo_id)
+            )
+
+            # Si existe un comentario anterior, verificamos el tiempo transcurrido
+            last_comment = cursor.fetchone()
+            if last_comment:
+                last_comment_time = last_comment['fecha']
+                if datetime.now() - last_comment_time < COMMENT_LIMIT_INTERVAL:
+                    errors.append("Por favor, espere antes de agregar otro comentario.")
+            
+            # Si se detecta spam, devolvemos un error
+            if errors:
+                return jsonify({'status': 'error', 'errors': errors}), 429
+
+            # Insertar el nuevo comentario en la base de datos
+            cursor.execute(
+                "INSERT INTO comentario (nombre, texto, fecha, dispositivo_id) VALUES (%s, %s, NOW(), %s)",
+                (nombre, texto, dispositivo_id)
+            )
+            conexion.commit()
+    except Exception as e:
+        conexion.rollback()
+        print(f"Error al insertar el comentario: {e}")
+        return jsonify({'status': 'error', 'message': 'Error al insertar el comentario en la base de datos.'}), 500
+    finally:
+        conexion.close()
+
+    return jsonify({'status': 'success', 'message': 'Comentario agregado exitosamente.'}), 201
