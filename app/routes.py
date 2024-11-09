@@ -137,7 +137,8 @@ def ver_dispositivos():
 @app.route('/informacion_dispositivo/<int:dispositivo_id>')
 def informacion_dispositivo(dispositivo_id):
     conexion = obtener_conexion()
-    
+    comentarios_iniciales = 4  # Número de comentarios a cargar inicialmente
+
     try:
         with conexion.cursor() as cursor:
             # Consulta para obtener la información del dispositivo
@@ -159,6 +160,17 @@ def informacion_dispositivo(dispositivo_id):
             cursor.execute(fotos_query, (dispositivo_id,))
             fotos = cursor.fetchall()
 
+            # Consulta para obtener los primeros 4 comentarios
+            comentarios_query = """
+                SELECT nombre, texto, fecha 
+                FROM comentario 
+                WHERE dispositivo_id = %s 
+                ORDER BY fecha DESC
+                LIMIT %s
+            """
+            cursor.execute(comentarios_query, (dispositivo_id, comentarios_iniciales))
+            comentarios = cursor.fetchall()
+
     except Exception as e:
         print(f"Error al obtener la información del dispositivo: {e}")
         return "Error al obtener la información del dispositivo", 500
@@ -170,8 +182,12 @@ def informacion_dispositivo(dispositivo_id):
     if not dispositivo:
         return abort(404)
     
-    # Renderizamos la página con la información del dispositivo
-    return render_template('informacion-dispositivo.html', dispositivo=dispositivo, fotos=fotos)
+    # Renderizamos la página con la información del dispositivo y los primeros 4 comentarios
+    return render_template('informacion-dispositivo.html', 
+                           dispositivo=dispositivo, 
+                           fotos=fotos, 
+                           comentarios=comentarios)
+
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
