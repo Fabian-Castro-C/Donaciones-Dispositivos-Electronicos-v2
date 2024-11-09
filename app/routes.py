@@ -188,6 +188,31 @@ def informacion_dispositivo(dispositivo_id):
                            fotos=fotos, 
                            comentarios=comentarios)
 
+@app.route('/get_comments/<int:dispositivo_id>/<int:page>', methods=['GET'])
+def get_comments(dispositivo_id, page):
+    conexion = obtener_conexion()
+    comments_per_page = 4  # Número de comentarios por página
+    offset = (page - 1) * comments_per_page
+
+    try:
+        with conexion.cursor() as cursor:
+            # Consulta paginada para obtener los comentarios
+            comentarios_query = """
+                SELECT nombre, texto, fecha 
+                FROM comentario 
+                WHERE dispositivo_id = %s 
+                ORDER BY fecha DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(comentarios_query, (dispositivo_id, comments_per_page, offset))
+            comentarios = cursor.fetchall()
+    except Exception as e:
+        print(f"Error al obtener los comentarios: {e}")
+        return jsonify({'status': 'error', 'message': 'Error al obtener los comentarios.'}), 500
+    finally:
+        conexion.close()
+
+    return jsonify({'status': 'success', 'comentarios': comentarios})
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
