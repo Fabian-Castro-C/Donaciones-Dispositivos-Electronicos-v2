@@ -54,9 +54,23 @@
     <!-- Comentarios manejados por JavaScript -->
     <section id="comments">
       <h2>Comentarios</h2>
-      <ul id="commentsList">
-        <!-- Los comentarios se agregarán aquí dinámicamente con JavaScript -->
-      </ul>
+      <!--  Comentarios recuperados desde la base de datos  -->
+        {% if comentarios %}
+        <ul id="commentsList">
+          {% for comentario in comentarios %}
+            <li>
+              <strong>{{ comentario.nombre }}</strong>
+              <span>({{ comentario.fecha.strftime('%Y-%m-%d %H:%M:%S')}})</span>
+              <p>{{ comentario.texto }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <button id="loadMoreButton" class="btn btn-primary">Mostrar más comentarios</button>
+
+        {% else %}
+          <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+        {% endif %}
       <h3>Agregar Comentario</h3>
       <form id="commentForm" data-device-id="{{ dispositivo.id }}" novalidate>
         <label for="commenterName">Nombre:</label>
