@@ -191,11 +191,11 @@ def add_comment():
 
     # Validaciones de longitud
     if not (3 <= len(nombre) <= 80):
-        errors.append("{campo: 'commenterName', error: 'El nombre debe tener entre 3 y 80 caracteres.'}")
+        errors.append({"campo": "commenterName", "message": "El nombre debe tener entre 3 y 80 caracteres."})
     if not (5 <= len(texto) <= 300):
-        errors.append("{campo: 'commentText', error: 'El comentario debe tener entre 5 y 300 caracteres.'}")
+        errors.append({"campo": "commentText", "message": "El comentario debe tener entre 5 y 300 caracteres."})
     if not dispositivo_id:
-        errors.append("{campo: 'commentForm', error: 'ID de dispositivo inválido.'}")
+        errors.append({"campo": "commentForm", "message": "ID de dispositivo inválido."})
 
     # Si hay errores, los devolvemos
     if errors:
@@ -216,7 +216,7 @@ def add_comment():
             if last_comment:
                 last_comment_time = last_comment['fecha']
                 if datetime.now() - last_comment_time < COMMENT_LIMIT_INTERVAL:
-                    errors.append("{campo: 'commentForm' error: 'Por favor, espere antes de agregar otro comentario.'}")
+                    errors.append({"campo": "commentForm", "message": "Por favor, espere antes de agregar otro comentario."})
             
             # Si se detecta spam, devolvemos un error
             if errors:
