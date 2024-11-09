@@ -4,7 +4,7 @@
 
 ### Descripción
 
-Este proyecto es una aplicación web que permite la gestión de donaciones de dispositivos electrónicos, implementado como parte de la **Tarea 2** del ramo **Desarrollo y Aplicaciones Web**. El sistema permite agregar donaciones de dispositivos, visualizar las donaciones registradas, y mostrar información detallada de los dispositivos donados. El proyecto se desarrolla en **Flask**, con validaciones tanto del lado del cliente (JavaScript) como del servidor. Además, se incluye un manejo seguro de archivos y consultas a la base de datos.
+Este proyecto es una aplicación web que permite la gestión de donaciones de dispositivos electrónicos, implementado como parte de la **Tarea 3** del ramo **Desarrollo y Aplicaciones Web**. El sistema permite agregar donaciones de dispositivos, visualizar las donaciones registradas, y mostrar información detallada de los dispositivos donados. El proyecto se desarrolla en **Flask**, con validaciones tanto del lado del cliente (JavaScript) como del servidor. Además, se incluye un manejo seguro de archivos y consultas a la base de datos.
 
 ---
 
@@ -29,12 +29,13 @@ Este proyecto es una aplicación web que permite la gestión de donaciones de di
 │   │   └── ver-dispositivos.css
 │   ├── js/                  # Archivos JavaScript para la interacción cliente
 │   │   ├── donationForm.js
-│   │   └── infoDevice.js
+│   │   ├── infoDevice.js
+│   │   └── index.js         # Nuevo archivo para manejar gráficos y estadísticas
 │   └── uploads/             # Directorio donde se almacenan las imágenes subidas
 │
 ├── sql                      # Esquemas y scripts SQL de la base de datos
 ├── venv                     # Entorno virtual con dependencias de Python
-├── .gitignore                # Archivos y directorios ignorados por Git
+├── .gitignore               # Archivos y directorios ignorados por Git
 ├── app.py                   # Archivo principal para ejecutar la aplicación Flask
 ├── README.md                # Documento de referencia para el proyecto
 └── requirements.txt         # Dependencias del proyecto
@@ -161,6 +162,43 @@ Se ha implementado un sistema de comentarios para cada dispositivo donado, con l
   - Se añadió una funcionalidad para cargar comentarios de manera progresiva, mostrando los primeros 4 comentarios y cargando más en grupos de 4 al hacer clic en el botón "Mostrar más comentarios".
   - El botón "Mostrar más comentarios" se oculta automáticamente cuando no hay más comentarios que cargar.
 
+#### Gráficos y Estadísticas
+
+Se han integrado gráficos dinámicos en la aplicación para proporcionar información estadística relevante sobre las donaciones de dispositivos electrónicos.
+
+- **Integración de Gráficos Dinámicos**:
+  - Se añadieron gráficos en la página `index.html` que muestran información estadística relevante:
+    - **Gráfico de Tipos de Dispositivos**: Representa la cantidad de dispositivos donados por tipo.
+    - **Gráfico de Contactos por Comuna**: Muestra la distribución de contactos por comuna.
+  - Los gráficos se generan utilizando la biblioteca **Highcharts** y se actualizan dinámicamente con datos obtenidos a través de AJAX.
+
+- **Rutas Flask para Proveer Datos**:
+  - Se añadieron dos nuevas rutas en `routes.py` que responden con datos JSON para alimentar los gráficos:
+    - **`/datos_dispositivos`**: Devuelve la cantidad de dispositivos donados por tipo.
+    - **`/datos_contactos`**: Devuelve la distribución de contactos por comuna.
+  - Estas rutas realizan consultas a la base de datos y envían la información en un formato estructurado, adecuado para su uso con Highcharts.
+
+- **Uso de AJAX con `fetch()` en el Frontend**:
+  - Se implementó el uso de `fetch()` para realizar solicitudes AJAX desde `index.js` y obtener los datos necesarios de las nuevas rutas Flask.
+  - El uso de `fetch()` permite que los gráficos se actualicen sin necesidad de recargar la página.
+
+- **Optimización del Diseño con CSS**:
+  - Se ajustaron los estilos CSS para asegurar que los gráficos se vean bien integrados en la página:
+    - Bordes, sombras y esquinas redondeadas para darle un aspecto moderno.
+    - Espaciado adicional en los encabezados y párrafos para una mejor presentación.
+
+- **Mejora en la Experiencia del Usuario**:
+  - La página `index.html` se ha actualizado para incluir las secciones de gráficos, ofreciendo información visual y fácil de interpretar sobre las donaciones.
+  - El diseño se ha optimizado para asegurar una experiencia de usuario fluida y atractiva.
+
+- **Descripción de las Rutas Flask Nuevas**:
+  - **`/datos_dispositivos`**:
+    - Realiza una consulta a la base de datos para contar la cantidad de dispositivos por tipo.
+    - Responde con un objeto JSON que incluye el tipo de dispositivo y el total correspondiente.
+  - **`/datos_contactos`**:
+    - Realiza una consulta a la base de datos para contar la cantidad de contactos por comuna.
+    - Responde con un objeto JSON que incluye la comuna y el total correspondiente.
+
 ---
 
 ### Seguridad
@@ -191,24 +229,28 @@ Se implementaron varias consideraciones de seguridad en la aplicación:
    - El botón "Mostrar más comentarios" se estilizó para que tenga un diseño coherente con el botón del formulario de comentarios.
    - Se añadió un `margin-bottom` al botón para evitar que esté demasiado cerca del texto "Agregar Comentario".
 
+4. **Optimización del Diseño de Gráficos**:
+   - Los gráficos en la página `index.html` cuentan con bordes, sombras y esquinas redondeadas para un aspecto moderno.
+   - Se añadió espaciado adicional en los encabezados y secciones de gráficos para una mejor presentación.
+
 ---
 
 ### Consideraciones Adicionales
 
-- **Comentarios**: Aunque se incluyeron en la interfaz, los comentarios ahora son manejados de manera más robusta con validaciones en el servidor y prevención de spam. Sin embargo, en esta versión del proyecto, los comentarios aún no se almacenan de forma persistente en la base de datos, siguiendo las indicaciones de la tarea. Actualmente, son gestionados en el cliente usando JavaScript, sin persistencia en el servidor.
-
+- **Comentarios**: Aunque se incluyeron en la interfaz, los comentarios ahora son manejados de manera más robusta con validaciones en el servidor y prevención de spam.
 ---
 
 ### Instrucciones de Uso
 
 - **Carga de Comentarios**: Los comentarios se cargan inicialmente en grupos de 4 y se pueden cargar más comentarios haciendo clic en el botón "Mostrar más comentarios".
 - **Optimización de la Carga**: La carga progresiva mejora la experiencia del usuario al evitar la carga de todos los comentarios de una sola vez.
+- **Visualización de Gráficos**: En la página principal (`index.html`), se muestran gráficos dinámicos que representan estadísticas sobre las donaciones de dispositivos y la distribución de contactos por comuna. Los gráficos se actualizan automáticamente sin necesidad de recargar la página.
 
 ---
 
 ### Actualización del Código JavaScript
 
-Se realizaron las siguientes modificaciones en el código JavaScript para mejorar la funcionalidad de los comentarios:
+Se realizaron las siguientes modificaciones en el código JavaScript para mejorar la funcionalidad de los comentarios y la integración de gráficos:
 
 - **Envío de Comentarios**:
   - Se modificó el JavaScript para enviar comentarios al servidor usando `fetch` con solicitudes `POST`.
@@ -219,14 +261,44 @@ Se realizaron las siguientes modificaciones en el código JavaScript para mejora
 - **Carga Dinámica de Comentarios**:
   - Se agregó una función para cargar comentarios de forma dinámica en grupos de 4, haciendo uso de `fetch` para obtener más comentarios sin recargar la página.
 
+- **Integración de Gráficos con AJAX**:
+  - En el archivo `index.js`, se implementaron funciones para realizar solicitudes `fetch` a las nuevas rutas Flask (`/datos_dispositivos` y `/datos_contactos`) y obtener los datos necesarios para los gráficos.
+  - Se inicializan los gráficos de Highcharts con los datos recibidos y se configuran para actualizarse dinámicamente según se obtengan nuevos datos.
+
 ---
 
 ### Actualización de la Ruta en Flask
 
-Se realizaron las siguientes actualizaciones en las rutas de Flask para soportar la nueva funcionalidad de comentarios:
+Se realizaron las siguientes actualizaciones en las rutas de Flask para soportar la nueva funcionalidad de comentarios y gráficos:
 
 - **Ruta `informacion_dispositivo`**:
   - Optimizada para cargar solo los primeros 4 comentarios inicialmente.
 
 - **Nueva Ruta `/get_comments`**:
   - Creada para manejar la carga paginada de comentarios, permitiendo la carga de comentarios adicionales de manera eficiente.
+
+- **Nuevas Rutas para Gráficos**:
+  - **`/datos_dispositivos`**:
+    - Realiza una consulta a la base de datos para contar la cantidad de dispositivos por tipo.
+    - Responde con un objeto JSON que incluye el tipo de dispositivo y el total correspondiente.
+  
+  - **`/datos_contactos`**:
+    - Realiza una consulta a la base de datos para contar la cantidad de contactos por comuna.
+    - Responde con un objeto JSON que incluye la comuna y el total correspondiente.
+
+Estas rutas permiten que los gráficos en el frontend se actualicen dinámicamente con información precisa y actualizada sobre las donaciones y los contactos.
+
+---
+
+Con estos cambios, la aplicación no solo gestiona las donaciones de dispositivos electrónicos de manera eficiente y segura, sino que también proporciona una experiencia de usuario enriquecida mediante la incorporación de funcionalidades avanzadas de comentarios y gráficos dinámicos que facilitan la interpretación de datos estadísticos relevantes.
+
+---
+
+### Dependencias Adicionales
+En el frontend, se incluye la biblioteca de Highcharts en el archivo HTML principal (`index.html`):
+
+```html
+<script src="https://code.highcharts.com/highcharts.js"></script>
+```
+
+---
