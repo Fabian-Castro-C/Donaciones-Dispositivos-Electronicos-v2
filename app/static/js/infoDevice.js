@@ -7,46 +7,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = document.getElementById('closeModal');
     const images = document.querySelectorAll('.device-photo'); 
 
-    const device_id = commentForm.getAttribute('data-device-id');
+    const device_id = commentForm ? commentForm.getAttribute('data-device-id') : null;
     const loadMoreButton = document.getElementById('loadMoreButton');
     let currentPage = 2; // Empezamos desde la página 2 porque la 1 ya está cargada
+    const perPage = 4; // Número de comentarios por página
 
-    // Manejar la carga de más comentarios
-    loadMoreButton.addEventListener('click', () => {
-      fetch(`/get_comments/${device_id}/${currentPage}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'success') {
-          const comentarios = data.comentarios;
+    // Obtener la cantidad inicial de comentarios cargados
+    const initialCommentsCount = commentsList ? commentsList.children.length : 0;
 
-          // Añadir los comentarios a la lista
-          comentarios.forEach(comentario => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-              <strong>${comentario.nombre}</strong>
-              <span>${new Date(comentario.fecha).toLocaleString()}</span>
-              <p>${comentario.texto}</p>
-            `;
-            commentsList.appendChild(li);
-          });
-
-          // Incrementar la página actual
-          currentPage++;
-
-          //Si no hay más comentarios, ocultar el botón
-          if (comentarios.length < 4) {
+    // Mostrar u ocultar el botón basado en la cantidad inicial de comentarios
+    if (loadMoreButton) {
+        if (initialCommentsCount < perPage) {
+            // No hay más comentarios para cargar
             loadMoreButton.style.display = 'none';
-          }
-        } else{
-          console.error("Error al cargar más comentarios:", data.message);
+        } else {
+            // Podría haber más comentarios
+            loadMoreButton.style.display = 'block';
         }
-      })
-      .catch(error => {
-        console.error("Error al enviar la solicitud:", error);
-      });
-    });
+    }
 
-  
+    // Manejar la carga de más comentarios al hacer clic en el botón
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', () => {
+            fetch(`/get_comments/${device_id}/${currentPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const comentarios = data.comentarios;
+                        comentarios.forEach(comentario => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <strong>${comentario.nombre}</strong>
+                                <span>(${new Date(comentario.fecha).toLocaleString()})</span>
+                                <p>${comentario.texto}</p>
+                            `;
+                            commentsList.appendChild(li);
+                        });
+
+                        currentPage++; // Incrementar la página para futuras solicitudes
+
+                        if (comentarios.length < perPage) {
+                            // No hay más comentarios para cargar
+                            loadMoreButton.style.display = 'none';
+                        }
+                    } else {
+                        console.error("Error al cargar más comentarios:", data.message);
+                        loadMoreButton.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al enviar la solicitud:", error);
+                    loadMoreButton.style.display = 'none';
+                });
+        });
+    }
+
     // Crear y añadir la imagen al modal
     function createImageForModal(imageSrc) {
       const img = document.createElement('img');
