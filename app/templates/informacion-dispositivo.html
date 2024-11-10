@@ -66,11 +66,13 @@
           {% endfor %}
         </ul>
 
+        <!-- Botón para cargar más comentarios -->
         <button id="loadMoreButton" class="btn btn-primary">Mostrar más comentarios</button>
 
         {% else %}
           <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
-        {% endif %}
+        {% endif %}        
+
       <h3>Agregar Comentario</h3>
       <form id="commentForm" data-device-id="{{ dispositivo.id }}" novalidate>
         <label for="commenterName">Nombre:</label>
